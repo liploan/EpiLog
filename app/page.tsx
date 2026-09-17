@@ -11,14 +11,31 @@ import { BookMonographModal } from '@/components/export/BookMonographModal';
 import { PhotoDropzone } from '@/components/upload/PhotoDropzone';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 
-// Dynamic import for MapCanvas to avoid SSR issues with maplibre-gl WebGL context
+// Dynamic import for MapCanvas with an editorial map skeleton
 const MapCanvas = dynamic(
   () => import('@/components/map/MapCanvas').then((mod) => mod.MapCanvas),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full bg-stone-900 flex items-center justify-center text-stone-500 text-xs">
-        Loading MapLibre WebGL Canvas...
+      <div className="w-full h-full bg-[#121316] relative flex flex-col items-center justify-center overflow-hidden">
+        {/* Subtle decorative grid background */}
+        <div
+          className="absolute inset-0 opacity-15"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+        <div className="relative z-10 flex flex-col items-center gap-3 text-stone-400">
+          <div className="w-10 h-10 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-orange-400 animate-pulse">
+            <span className="w-3 h-3 rounded-full bg-orange-500" />
+          </div>
+          <div className="text-xs font-semibold tracking-wider uppercase text-stone-300">
+            Mounting Cartography Canvas
+          </div>
+          <p className="text-[11px] text-stone-500 font-mono">Initializing WebGL &amp; OpenStreetMap Vector Engine</p>
+        </div>
       </div>
     ),
   }

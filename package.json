@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
+    "dev:standard": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "clean": "rm -rf .next node_modules/.cache",
+    "lint": "next lint",
+    "test": "node tests/test-stitcher.mjs",
+    "deck": "python3 generate_deck.py"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
