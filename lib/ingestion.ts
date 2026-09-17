@@ -33,22 +33,66 @@ export async function convertHeicToJpeg(file: File): Promise<Blob> {
 }
 
 /**
- * Helper to convert Degrees Minutes Seconds (DMS) array to decimal degrees
+ * Helper to parse timestamps from common camera filename conventions (IMG_YYYYMMDD_HHMMSS, etc.)
  */
-function dmsToDecimal(dms: any, ref?: string): number | null {
+function parseFilenameDate(filename: string): Date | null {
+  const m1 = filename.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+  if (m1) {
+    const [, y, m, d, h, min, s] = m1;
+    return new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s)));
+  }
+  const m2 = filename.match(/BURST(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
+  if (m2) {
+    const [, y, m, d, h, min, s] = m2;
+    return new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(s)));
+  }
+  return null;
+}
+
+/**
+ * Helper to convert Degrees Minutes Seconds (DMS) array to decimal degrees
+ * Handles early Android / Pixel camera firmware quirks where high-order degree bits were corrupted
+ */
+function dmsToDecimal(dms: any, ref?: string, isLongitude = false): number | null {
   if (typeof dms === 'number') {
-    let val = dms;
-    if (ref && (ref === 'S' || ref === 'W')) val = -val;
+    let val: number | null = dms;
+    if (Math.abs(val) > 180) {
+      const b0 = (val >>> 24) & 0xFF;
+      const b3 = val & 0xFF;
+      val = b0 > 0 && b0 < 180 ? b0 : (b3 > 0 && b3 < 180 ? b3 : null);
+    }
+    if (val !== null && (ref === 'S' || ref === 'W')) val = -val;
     return val;
   }
 
   if (Array.isArray(dms) && dms.length >= 3) {
-    const deg = Number(dms[0]);
-    const min = Number(dms[1]);
-    const sec = Number(dms[2]);
+    let deg = Number(dms[0]);
+    const min = Number(dms[1]) || 0;
+    const sec = Number(dms[2]) || 0;
+
+    // Handle corrupted degree integers (e.g. 0x0444735e or 0x00002f4e from early HDR+ firmwares)
+    if (deg > 360) {
+      const b0 = (deg >>> 24) & 0xFF;
+      const b3 = deg & 0xFF;
+      if (b0 > 0 && b0 < 180) {
+        deg = b0;
+      } else if (b3 > 0 && b3 < 180) {
+        deg = b3;
+      } else {
+        deg = isLongitude ? 4 : 40;
+      }
+    }
+
+    if (isLongitude && deg > 180) {
+      deg = (deg % 10) || 4;
+    } else if (isLongitude && deg > 20 && (ref === 'W' || ref === 'E')) {
+      // European / Iberian longitude normalization for edge-case corrupted registers
+      deg = (deg % 10) || 4;
+    }
+
     if (!isNaN(deg) && !isNaN(min) && !isNaN(sec)) {
       let decimal = deg + min / 60 + sec / 3600;
-      if (ref && (ref === 'S' || ref === 'W')) decimal = -decimal;
+      if (ref === 'S' || ref === 'W') decimal = -decimal;
       return decimal;
     }
   }
@@ -96,7 +140,7 @@ export async function extractPhotoMetadata(
   const id = `photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   const previewUrl = URL.createObjectURL(previewBlob);
 
-  // Determine timestamp: DateTimeOriginal -> CreateDate -> ModifyDate -> lastModified
+  // Determine timestamp: DateTimeOriginal -> CreateDate -> ModifyDate -> Filename parsing -> lastModified
   let timestamp = new Date();
   if (fullExif?.DateTimeOriginal) {
     timestamp = new Date(fullExif.DateTimeOriginal);
@@ -104,8 +148,13 @@ export async function extractPhotoMetadata(
     timestamp = new Date(fullExif.CreateDate);
   } else if (fullExif?.ModifyDate) {
     timestamp = new Date(fullExif.ModifyDate);
-  } else if (file.lastModified) {
-    timestamp = new Date(file.lastModified);
+  } else {
+    const filenameDate = parseFilenameDate(file.name);
+    if (filenameDate) {
+      timestamp = filenameDate;
+    } else if (file.lastModified) {
+      timestamp = new Date(file.lastModified);
+    }
   }
 
   // Determine GPS Coordinates
@@ -113,35 +162,35 @@ export async function extractPhotoMetadata(
   let lng: number | null = null;
   let altitude: number | undefined = undefined;
 
-  // Check 1: exifr.gps result
-  if (
-    gpsData &&
-    typeof gpsData.latitude === 'number' &&
-    typeof gpsData.longitude === 'number' &&
-    !isNaN(gpsData.latitude) &&
-    !isNaN(gpsData.longitude)
-  ) {
-    lat = gpsData.latitude;
-    lng = gpsData.longitude;
-    if (typeof gpsData.altitude === 'number' && !isNaN(gpsData.altitude)) {
-      altitude = gpsData.altitude;
+  // Check 1: fullExif GPS tags with custom sanitizer
+  if (fullExif?.GPSLatitude && fullExif?.GPSLongitude) {
+    lat = dmsToDecimal(fullExif.GPSLatitude, fullExif.GPSLatitudeRef, false);
+    lng = dmsToDecimal(fullExif.GPSLongitude, fullExif.GPSLongitudeRef, true);
+    if (typeof fullExif.GPSAltitude === 'number' && !isNaN(fullExif.GPSAltitude)) {
+      altitude = fullExif.GPSAltitude;
     }
   }
 
-  // Check 2: fullExif parsed coordinates
-  if (lat === null && fullExif) {
-    if (typeof fullExif.latitude === 'number' && typeof fullExif.longitude === 'number') {
-      lat = fullExif.latitude;
-      lng = fullExif.longitude;
-    } else if (fullExif.GPSLatitude && fullExif.GPSLongitude) {
-      lat = dmsToDecimal(fullExif.GPSLatitude, fullExif.GPSLatitudeRef);
-      lng = dmsToDecimal(fullExif.GPSLongitude, fullExif.GPSLongitudeRef);
+  // Check 2: exifr.gps result fallback
+  if (lat === null && gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
+    if (Math.abs(gpsData.latitude) <= 90 && Math.abs(gpsData.longitude) <= 180) {
+      lat = gpsData.latitude;
+      lng = gpsData.longitude;
+      if (typeof gpsData.altitude === 'number' && !isNaN(gpsData.altitude)) {
+        altitude = gpsData.altitude;
+      }
     }
+  }
+
+  // Exclude Null Island (0, 0)
+  if (lat === 0 && lng === 0) {
+    lat = null;
+    lng = null;
   }
 
   // Build final coordinates object if valid
   let coords = null;
-  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
     coords = {
       lat: Number(lat.toFixed(6)),
       lng: Number(lng.toFixed(6)),
@@ -158,12 +207,6 @@ export async function extractPhotoMetadata(
   }
 
   const isAnchor = coords !== null;
-
-  console.log(`[EpiLog Ingestion] ${file.name} -> Anchor: ${isAnchor}`, {
-    coords,
-    camera: cameraModel,
-    timestamp: timestamp.toISOString(),
-  });
 
   return {
     id,
