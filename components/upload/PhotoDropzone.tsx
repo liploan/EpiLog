@@ -121,13 +121,14 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
         maxDistanceMeters: distanceMeters,
       });
 
-      // 2. Reverse Geocode & Historical Enrich stops
-      const enrichedStops: TravelStop[] = [];
-      for (let i = 0; i < initialStops.length; i++) {
-        setProgressMsg(`Enriching Stop ${i + 1}/${initialStops.length} coordinates...`);
-        const enriched = await enrichStop(initialStops[i]);
-        enrichedStops.push(enriched);
-      }
+      // 2. Reverse Geocode & Historical Enrich stops in parallel
+      setProgressMsg(`Enriching ${initialStops.length} stops with reverse geocoding & historical trivia...`);
+      const enrichedStops = await Promise.all(
+        initialStops.map(async (stop, idx) => {
+          const enriched = await enrichStop(stop);
+          return enriched;
+        })
+      );
 
       const totalDistanceKm = computeTotalDistanceKm(enrichedStops);
 

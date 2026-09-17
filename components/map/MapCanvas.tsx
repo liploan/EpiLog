@@ -19,28 +19,26 @@ type MapStyleKey = 'voyager' | 'positron' | 'dark' | 'satellite';
 
 const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
   voyager: {
-    name: 'Editorial Light',
+    name: 'Editorial Street',
     style: {
       version: 8,
       sources: {
-        'carto-voyager': {
+        'esri-streets': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
           ],
           tileSize: 256,
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+          attribution: 'Esri, HERE, Garmin, USGS, NGA',
         },
       },
       layers: [
         {
-          id: 'carto-voyager-layer',
+          id: 'esri-streets-layer',
           type: 'raster',
-          source: 'carto-voyager',
+          source: 'esri-streets',
           minzoom: 0,
-          maxzoom: 20,
+          maxzoom: 19,
         },
       ],
     },
@@ -50,24 +48,22 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
     style: {
       version: 8,
       sources: {
-        'carto-dark': {
+        'esri-dark': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
           ],
           tileSize: 256,
-          attribution: '&copy; CARTO &copy; OpenStreetMap',
+          attribution: 'Esri, Garmin, HERE, © OpenStreetMap',
         },
       },
       layers: [
         {
-          id: 'carto-dark-layer',
+          id: 'esri-dark-layer',
           type: 'raster',
-          source: 'carto-dark',
+          source: 'esri-dark',
           minzoom: 0,
-          maxzoom: 20,
+          maxzoom: 18,
         },
       ],
     },
@@ -77,23 +73,22 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
     style: {
       version: 8,
       sources: {
-        'carto-positron': {
+        'esri-light': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
           ],
           tileSize: 256,
-          attribution: '&copy; CARTO &copy; OpenStreetMap',
+          attribution: 'Esri, Garmin, HERE, © OpenStreetMap',
         },
       },
       layers: [
         {
-          id: 'carto-positron-layer',
+          id: 'esri-light-layer',
           type: 'raster',
-          source: 'carto-positron',
+          source: 'esri-light',
           minzoom: 0,
-          maxzoom: 20,
+          maxzoom: 18,
         },
       ],
     },
@@ -103,7 +98,7 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
     style: {
       version: 8,
       sources: {
-        'arcgis-sat': {
+        'esri-sat': {
           type: 'raster',
           tiles: [
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -114,9 +109,9 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
       },
       layers: [
         {
-          id: 'arcgis-sat-layer',
+          id: 'esri-sat-layer',
           type: 'raster',
-          source: 'arcgis-sat',
+          source: 'esri-sat',
           minzoom: 0,
           maxzoom: 19,
         },
