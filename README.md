@@ -127,6 +127,4 @@ python3 generate_deck.py
 
 ---
 
-## License
-
-MIT License &copy; 2024 EpiLog. All rights reserved.
+&copy; EpiLog. All rights reserved.
