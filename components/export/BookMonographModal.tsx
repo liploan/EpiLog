@@ -120,6 +120,9 @@ export const BookMonographModal: React.FC<BookMonographModalProps> = ({
                     src={heroPhoto.previewUrl}
                     alt={currentStop.poiName}
                     crossOrigin="anonymous"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop';
+                    }}
                     className="w-full h-full object-cover"
                   />
                 ) : (

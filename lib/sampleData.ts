@@ -80,7 +80,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-kiyo-1',
-          previewUrl: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-14T13:20:00Z'),
           coords: { lat: 34.9948, lng: 135.785 },
           cameraModel: 'iPhone 15 Pro (48mm f/1.78)',
@@ -88,7 +88,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-kiyo-2',
-          previewUrl: 'https://images.unsplash.com/photo-1528164344705-475426879c0d?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-14T13:22:15Z'),
           coords: { lat: 34.9948, lng: 135.785 },
           cameraModel: 'Leica Q3 (28mm Summilux)',
@@ -126,7 +126,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-arash-1',
-          previewUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-15T09:15:00Z'),
           coords: { lat: 35.017, lng: 135.6713 },
           cameraModel: 'iPhone 15 Pro (24mm)',
@@ -134,7 +134,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-arash-2',
-          previewUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-15T09:17:30Z'),
           coords: { lat: 35.017, lng: 135.6713 },
           cameraModel: 'Fujifilm X-T5 (35mm f/1.4)',
@@ -172,7 +172,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-gold-1',
-          previewUrl: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-15T14:35:00Z'),
           coords: { lat: 35.0394, lng: 135.7292 },
           cameraModel: 'iPhone 15 Pro (77mm 3x Telephoto)',
@@ -208,7 +208,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-ponto-1',
-          previewUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1554797589-7241bb691973?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-16T18:15:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'Sony A7 IV (35mm f/1.4 GM)',
@@ -218,7 +218,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-ponto-2',
-          previewUrl: 'https://images.unsplash.com/photo-1528164344705-475426879c0d?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-16T18:16:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'iPhone 15 Pro (24mm Night Mode)',

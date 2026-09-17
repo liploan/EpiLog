@@ -154,6 +154,10 @@ export const StopCard: React.FC<StopCardProps> = ({
             <img
               src={activePhoto.previewUrl}
               alt={stop.poiName}
+              onError={(e) => {
+                // Fallback to high-reliability Kyoto scenic image
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop';
+              }}
               className="w-full h-full object-cover transition-transform duration-500 group-hover/photo:scale-105"
             />
           ) : (
