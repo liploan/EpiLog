@@ -15,7 +15,6 @@ export async function convertHeicToJpeg(file: File): Promise<Blob> {
   }
 
   try {
-    // Dynamic import to avoid SSR issues
     const heic2any = (await import('heic2any')).default;
     const converted = await heic2any({
       blob: file,
@@ -34,7 +33,31 @@ export async function convertHeicToJpeg(file: File): Promise<Blob> {
 }
 
 /**
- * Extracts EXIF metadata (GPS, Timestamp, Camera model) using exifr
+ * Helper to convert Degrees Minutes Seconds (DMS) array to decimal degrees
+ */
+function dmsToDecimal(dms: any, ref?: string): number | null {
+  if (typeof dms === 'number') {
+    let val = dms;
+    if (ref && (ref === 'S' || ref === 'W')) val = -val;
+    return val;
+  }
+
+  if (Array.isArray(dms) && dms.length >= 3) {
+    const deg = Number(dms[0]);
+    const min = Number(dms[1]);
+    const sec = Number(dms[2]);
+    if (!isNaN(deg) && !isNaN(min) && !isNaN(sec)) {
+      let decimal = deg + min / 60 + sec / 3600;
+      if (ref && (ref === 'S' || ref === 'W')) decimal = -decimal;
+      return decimal;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extracts EXIF metadata & GPS coordinates comprehensively using exifr
  */
 export async function extractPhotoMetadata(
   file: File,
@@ -42,68 +65,105 @@ export async function extractPhotoMetadata(
 ): Promise<PhotoAsset> {
   const exifr = await import('exifr');
 
-  let exifData: any = null;
+  let gpsData: any = null;
+  let fullExif: any = null;
+
   try {
-    // Parse full EXIF + GPS + TIFF headers
-    exifData = await exifr.parse(file, {
-      gps: true,
-      pick: [
-        'latitude',
-        'longitude',
-        'altitude',
-        'DateTimeOriginal',
-        'CreateDate',
-        'ModifyDate',
-        'Make',
-        'Model',
-        'LensModel',
-        'FocalLength',
-        'FNumber',
-      ],
-    });
+    // 1. Dedicated GPS extraction (checks EXIF GPS IFD, XMP, and TIFF)
+    gpsData = await exifr.gps(file).catch(() => null);
   } catch (err) {
-    console.warn(`EXIF parsing failed for ${file.name}:`, err);
+    console.warn(`exifr.gps error on ${file.name}:`, err);
+  }
+
+  try {
+    // 2. Full metadata extraction (no restrictive pick filter)
+    fullExif = await exifr
+      .parse(file, {
+        tiff: true,
+        xmp: true,
+        iptc: true,
+        jfif: true,
+        gps: true,
+        translateValues: true,
+        reviveValues: true,
+        sanitize: true,
+      })
+      .catch(() => null);
+  } catch (err) {
+    console.warn(`exifr.parse error on ${file.name}:`, err);
   }
 
   const id = `photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   const previewUrl = URL.createObjectURL(previewBlob);
 
-  // Determine timestamp: EXIF DateTimeOriginal -> File lastModified -> Now
+  // Determine timestamp: DateTimeOriginal -> CreateDate -> ModifyDate -> lastModified
   let timestamp = new Date();
-  if (exifData?.DateTimeOriginal) {
-    timestamp = new Date(exifData.DateTimeOriginal);
-  } else if (exifData?.CreateDate) {
-    timestamp = new Date(exifData.CreateDate);
+  if (fullExif?.DateTimeOriginal) {
+    timestamp = new Date(fullExif.DateTimeOriginal);
+  } else if (fullExif?.CreateDate) {
+    timestamp = new Date(fullExif.CreateDate);
+  } else if (fullExif?.ModifyDate) {
+    timestamp = new Date(fullExif.ModifyDate);
   } else if (file.lastModified) {
     timestamp = new Date(file.lastModified);
   }
 
-  // Determine GPS coordinates
-  let coords = null;
-  const hasValidGps =
-    exifData &&
-    typeof exifData.latitude === 'number' &&
-    typeof exifData.longitude === 'number' &&
-    !isNaN(exifData.latitude) &&
-    !isNaN(exifData.longitude);
+  // Determine GPS Coordinates
+  let lat: number | null = null;
+  let lng: number | null = null;
+  let altitude: number | undefined = undefined;
 
-  if (hasValidGps) {
+  // Check 1: exifr.gps result
+  if (
+    gpsData &&
+    typeof gpsData.latitude === 'number' &&
+    typeof gpsData.longitude === 'number' &&
+    !isNaN(gpsData.latitude) &&
+    !isNaN(gpsData.longitude)
+  ) {
+    lat = gpsData.latitude;
+    lng = gpsData.longitude;
+    if (typeof gpsData.altitude === 'number' && !isNaN(gpsData.altitude)) {
+      altitude = gpsData.altitude;
+    }
+  }
+
+  // Check 2: fullExif parsed coordinates
+  if (lat === null && fullExif) {
+    if (typeof fullExif.latitude === 'number' && typeof fullExif.longitude === 'number') {
+      lat = fullExif.latitude;
+      lng = fullExif.longitude;
+    } else if (fullExif.GPSLatitude && fullExif.GPSLongitude) {
+      lat = dmsToDecimal(fullExif.GPSLatitude, fullExif.GPSLatitudeRef);
+      lng = dmsToDecimal(fullExif.GPSLongitude, fullExif.GPSLongitudeRef);
+    }
+  }
+
+  // Build final coordinates object if valid
+  let coords = null;
+  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
     coords = {
-      lat: Number(exifData.latitude.toFixed(6)),
-      lng: Number(exifData.longitude.toFixed(6)),
-      altitude: exifData.altitude ? Number(exifData.altitude.toFixed(1)) : undefined,
+      lat: Number(lat.toFixed(6)),
+      lng: Number(lng.toFixed(6)),
+      altitude: altitude ? Number(altitude.toFixed(1)) : undefined,
     };
   }
 
-  // Camera model
+  // Camera model detection
   let cameraModel: string | undefined = undefined;
-  if (exifData?.Make || exifData?.Model) {
-    const make = exifData.Make || '';
-    const model = exifData.Model || '';
-    cameraModel = model.includes(make) ? model : `${make} ${model}`.trim();
+  if (fullExif?.Make || fullExif?.Model) {
+    const make = (fullExif.Make || '').trim();
+    const model = (fullExif.Model || '').trim();
+    cameraModel = model.toLowerCase().includes(make.toLowerCase()) ? model : `${make} ${model}`.trim();
   }
 
   const isAnchor = coords !== null;
+
+  console.log(`[EpiLog Ingestion] ${file.name} -> Anchor: ${isAnchor}`, {
+    coords,
+    camera: cameraModel,
+    timestamp: timestamp.toISOString(),
+  });
 
   return {
     id,
@@ -136,7 +196,7 @@ export async function processBatchPhotos(
     try {
       // 1. Convert HEIC if needed
       const previewBlob = await convertHeicToJpeg(file);
-      // 2. Extract EXIF metadata & GPS
+      // 2. Extract EXIF metadata & GPS with full multi-segment parser
       const asset = await extractPhotoMetadata(file, previewBlob);
       results.push(asset);
     } catch (err) {
