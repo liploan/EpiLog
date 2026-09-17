@@ -92,7 +92,7 @@ export default function EpiLogDashboard() {
     }));
   };
 
-  // Synthesize single stop with Gemini API
+  // Synthesize single stop with client-side Gemini engine (compatible with GitHub Pages)
   const handleSynthesizeStop = async (stop: TravelStop) => {
     setSynthesizingStopId(stop.id);
 
@@ -108,36 +108,30 @@ export default function EpiLogDashboard() {
         });
       }
 
-      const res = await fetch('/api/synthesize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey,
-          poiName: stop.poiName,
-          city: stop.locationContext.city,
-          country: stop.locationContext.country,
-          stopIndex: stop.stopIndex,
-          photoBase64,
-          existingReflection: {
-            category: stop.reflection.category,
-            userNotes: stop.reflection.userNotes,
-          },
-        }),
+      const { synthesizeSceneWithGemini } = await import('@/lib/gemini');
+      const result = await synthesizeSceneWithGemini({
+        apiKey,
+        poiName: stop.poiName,
+        city: stop.locationContext.city,
+        country: stop.locationContext.country,
+        stopIndex: stop.stopIndex,
+        photoBase64,
+        existingReflection: {
+          category: stop.reflection.category,
+          userNotes: stop.reflection.userNotes,
+        },
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (result.success) {
         handleUpdateStop({
           ...stop,
-          narrativeCaption: data.narrativeCaption,
+          narrativeCaption: result.narrativeCaption,
           reflection: {
             ...stop.reflection,
-            category: data.category || stop.reflection.category,
-            takeawayText: data.takeawayText,
+            category: result.category || stop.reflection.category,
+            takeawayText: result.takeawayText,
           },
         });
-      } else {
-        alert(`Synthesis notice: ${data.error || 'Check API key or network'}`);
       }
     } catch (err) {
       console.error('Failed synthesizing stop:', err);
