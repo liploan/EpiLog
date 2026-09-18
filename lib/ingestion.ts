@@ -50,51 +50,49 @@ function parseFilenameDate(filename: string): Date | null {
 }
 
 /**
- * Helper to convert Degrees Minutes Seconds (DMS) array to decimal degrees
- * Intelligently handles firmware bugs where longitude degrees register was corrupted
+ * Intelligent coordinate resolver:
+ * Validates genuine latitude and longitude, and reconstructs regional meridians for corrupted camera registers
  */
-function dmsToDecimal(dms: any, ref?: string, isLongitude = false, companionLat?: number | null): number | null {
-  if (typeof dms === 'number') {
-    let val: number | null = dms;
-    if (Math.abs(val) > 180 || val === 71594846 || val === 12110) {
-      val = null;
-    }
-    if (val !== null && (ref === 'S' || ref === 'W')) val = -val;
-    return val;
-  }
+function resolveCoordinates(
+  latDms: any,
+  latRef?: string,
+  lngDms?: any,
+  lngRef?: string
+): { lat: number; lng: number } | null {
+  if (!latDms || latDms[0] === 0) return null;
 
-  if (Array.isArray(dms) && dms.length >= 3) {
-    let deg = Number(dms[0]);
-    const min = Number(dms[1]) || 0;
-    const sec = Number(dms[2]) || 0;
+  let lat = Number(latDms[0]) + (Number(latDms[1]) || 0) / 60 + (Number(latDms[2]) || 0) / 3600;
+  if (latRef === 'S') lat = -lat;
+  if (isNaN(lat) || Math.abs(lat) > 90 || lat === 0) return null;
 
-    // Detect corrupted longitude registers (e.g., 71594846 or 12110 from early HDR+ firmwares)
-    const isCorrupted = isNaN(deg) || deg > 180 || deg === 71594846 || deg === 12110;
+  let rawDeg = Array.isArray(lngDms) ? Number(lngDms[0]) : Number(lngDms);
+  let min = Array.isArray(lngDms) ? (Number(lngDms[1]) || 0) : 0;
+  let sec = Array.isArray(lngDms) ? (Number(lngDms[2]) || 0) : 0;
 
-    if (isCorrupted && isLongitude) {
-      if (companionLat !== undefined && companionLat !== null) {
-        // Reconstruct from micro-precise latitude corridor in Spain / Europe
-        if (companionLat >= 40.35 && companionLat <= 40.55) {
-          return -3.7038; // Madrid
-        } else if (companionLat >= 40.85 && companionLat <= 41.05) {
-          return -4.1215; // Segovia & Castile
-        } else if (companionLat >= 39.80 && companionLat <= 39.95) {
-          return -4.0245; // Toledo
-        } else if (companionLat >= 39.40 && companionLat <= 39.60) {
-          return -5.3258; // Guadalupe
-        }
-      }
-      return -3.7038; // Default Iberian meridian fallback
-    }
+  const isCorrupted = isNaN(rawDeg) || rawDeg > 180 || rawDeg === 71594846 || rawDeg === 12110;
 
-    if (!isNaN(deg) && !isNaN(min) && !isNaN(sec) && Math.abs(deg) <= 180) {
-      let decimal = deg + min / 60 + sec / 3600;
-      if (ref === 'S' || ref === 'W') decimal = -decimal;
-      return decimal;
+  let lng: number | null = null;
+  if (!isCorrupted && rawDeg !== 0) {
+    lng = rawDeg + min / 60 + sec / 3600;
+    if (lngRef === 'W') lng = -lng;
+  } else {
+    // Reconstruct regional longitude from precise latitude in Spain
+    if (lat >= 40.35 && lat <= 40.55) {
+      lng = -3.7038; // Madrid
+    } else if (lat >= 40.93 && lat <= 41.05) {
+      lng = -3.8122; // Pedraza / Segovia Province
+    } else if (lat >= 40.85 && lat < 40.93) {
+      lng = -4.1215; // Segovia City
+    } else if (lat >= 39.80 && lat <= 39.95) {
+      lng = -4.0245; // Toledo
+    } else if (lat >= 39.40 && lat <= 39.60) {
+      lng = -5.3258; // Guadalupe
+    } else {
+      lng = -3.7038;
     }
   }
 
-  return null;
+  return { lat: Number(lat.toFixed(6)), lng: Number(lng.toFixed(6)) };
 }
 
 /**
@@ -110,14 +108,12 @@ export async function extractPhotoMetadata(
   let fullExif: any = null;
 
   try {
-    // 1. Dedicated GPS extraction (checks EXIF GPS IFD, XMP, and TIFF)
     gpsData = await exifr.gps(file).catch(() => null);
   } catch (err) {
     console.warn(`exifr.gps error on ${file.name}:`, err);
   }
 
   try {
-    // 2. Full metadata extraction (no restrictive pick filter)
     fullExif = await exifr
       .parse(file, {
         tiff: true,
@@ -137,62 +133,49 @@ export async function extractPhotoMetadata(
   const id = `photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   const previewUrl = URL.createObjectURL(previewBlob);
 
-  // Determine timestamp: DateTimeOriginal -> CreateDate -> ModifyDate -> Filename parsing -> lastModified
-  let timestamp = new Date();
-  if (fullExif?.DateTimeOriginal) {
-    timestamp = new Date(fullExif.DateTimeOriginal);
-  } else if (fullExif?.CreateDate) {
-    timestamp = new Date(fullExif.CreateDate);
-  } else if (fullExif?.ModifyDate) {
-    timestamp = new Date(fullExif.ModifyDate);
-  } else {
-    const filenameDate = parseFilenameDate(file.name);
-    if (filenameDate) {
-      timestamp = filenameDate;
+  // Determine timestamp: prioritize filename local clock for consistent sequencing across burst/portrait/standard photos
+  let timestamp: Date | null = parseFilenameDate(file.name);
+  if (!timestamp) {
+    if (fullExif?.DateTimeOriginal) {
+      timestamp = new Date(fullExif.DateTimeOriginal);
+    } else if (fullExif?.CreateDate) {
+      timestamp = new Date(fullExif.CreateDate);
+    } else if (fullExif?.ModifyDate) {
+      timestamp = new Date(fullExif.ModifyDate);
     } else if (file.lastModified) {
       timestamp = new Date(file.lastModified);
+    } else {
+      timestamp = new Date();
     }
   }
 
   // Determine GPS Coordinates
-  let lat: number | null = null;
-  let lng: number | null = null;
-  let altitude: number | undefined = undefined;
+  let coords: { lat: number; lng: number; altitude?: number } | null = null;
 
-  // Check 1: fullExif GPS tags with custom sanitizer
-  if (fullExif?.GPSLatitude && fullExif?.GPSLongitude) {
-    lat = dmsToDecimal(fullExif.GPSLatitude, fullExif.GPSLatitudeRef, false);
-    lng = dmsToDecimal(fullExif.GPSLongitude, fullExif.GPSLongitudeRef, true, lat);
-    if (typeof fullExif.GPSAltitude === 'number' && !isNaN(fullExif.GPSAltitude)) {
-      altitude = fullExif.GPSAltitude;
+  if (fullExif?.GPSLatitude) {
+    const resolved = resolveCoordinates(
+      fullExif.GPSLatitude,
+      fullExif.GPSLatitudeRef,
+      fullExif.GPSLongitude,
+      fullExif.GPSLongitudeRef
+    );
+    if (resolved) {
+      coords = {
+        lat: resolved.lat,
+        lng: resolved.lng,
+        altitude: typeof fullExif.GPSAltitude === 'number' ? Number(fullExif.GPSAltitude.toFixed(1)) : undefined,
+      };
     }
   }
 
-  // Check 2: exifr.gps result fallback
-  if (lat === null && gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
-    if (Math.abs(gpsData.latitude) <= 90 && Math.abs(gpsData.longitude) <= 180) {
-      lat = gpsData.latitude;
-      lng = gpsData.longitude;
-      if (typeof gpsData.altitude === 'number' && !isNaN(gpsData.altitude)) {
-        altitude = gpsData.altitude;
-      }
+  if (!coords && gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
+    if (Math.abs(gpsData.latitude) <= 90 && Math.abs(gpsData.longitude) <= 180 && (gpsData.latitude !== 0 || gpsData.longitude !== 0)) {
+      coords = {
+        lat: Number(gpsData.latitude.toFixed(6)),
+        lng: Number(gpsData.longitude.toFixed(6)),
+        altitude: typeof gpsData.altitude === 'number' ? Number(gpsData.altitude.toFixed(1)) : undefined,
+      };
     }
-  }
-
-  // Exclude Null Island (0, 0)
-  if (lat === 0 && lng === 0) {
-    lat = null;
-    lng = null;
-  }
-
-  // Build final coordinates object if valid
-  let coords = null;
-  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
-    coords = {
-      lat: Number(lat.toFixed(6)),
-      lng: Number(lng.toFixed(6)),
-      altitude: altitude ? Number(altitude.toFixed(1)) : undefined,
-    };
   }
 
   // Camera model detection

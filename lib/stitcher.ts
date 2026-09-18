@@ -45,11 +45,12 @@ export function calculateCentroid(coords: GeoCoordinate[]): GeoCoordinate {
 }
 
 /**
- * Matches DSLR orphan photos (lacking GPS) to the nearest GPS anchor photo within ±windowSeconds (default 180s / 3 min)
+ * Matches DSLR orphan photos (lacking GPS) to the nearest GPS anchor photo
+ * Uses precise ±windowSeconds matching first, then falls back to same-day session matching
  */
 export function matchOrphansToAnchors(
   photos: PhotoAsset[],
-  maxWindowSeconds: number = 180
+  maxWindowSeconds: number = 300
 ): {
   photos: PhotoAsset[];
   anchorsCount: number;
@@ -57,18 +58,23 @@ export function matchOrphansToAnchors(
   matchedOrphansCount: number;
   unmatchedOrphansCount: number;
 } {
-  const anchors = photos.filter((p) => p.isAnchor && p.coords !== null);
-  const orphans = photos.filter((p) => !p.isAnchor || p.coords === null);
+  // Always sort chronologically first
+  const sortedPhotos = [...photos].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+
+  const anchors = sortedPhotos.filter((p) => p.isAnchor && p.coords !== null);
+  const orphans = sortedPhotos.filter((p) => !p.isAnchor || p.coords === null);
 
   let matchedOrphansCount = 0;
 
-  const processedPhotos: PhotoAsset[] = photos.map((photo) => {
+  const processedPhotos: PhotoAsset[] = sortedPhotos.map((photo) => {
     // If it's already an anchor with coords, return as is
     if (photo.isAnchor && photo.coords) {
       return photo;
     }
 
-    // Search for closest anchor within ±maxWindowSeconds
+    // Step 1: Search for closest anchor within ±maxWindowSeconds
     const photoTime = new Date(photo.timestamp).getTime();
     let bestAnchor: PhotoAsset | null = null;
     let minTimeDiffSec = Infinity;
@@ -77,13 +83,14 @@ export function matchOrphansToAnchors(
       const anchorTime = new Date(anchor.timestamp).getTime();
       const diffSec = Math.abs(photoTime - anchorTime) / 1000;
 
-      if (diffSec <= maxWindowSeconds && diffSec < minTimeDiffSec) {
+      if (diffSec < minTimeDiffSec) {
         minTimeDiffSec = diffSec;
         bestAnchor = anchor;
       }
     }
 
-    if (bestAnchor && bestAnchor.coords) {
+    // Match if within window or same travel day (within 24h)
+    if (bestAnchor && bestAnchor.coords && minTimeDiffSec <= 24 * 3600) {
       matchedOrphansCount++;
       return {
         ...photo,

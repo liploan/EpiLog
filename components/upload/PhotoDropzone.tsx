@@ -36,10 +36,10 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   const [progressPercent, setProgressPercent] = useState(0);
 
   // Parameter tuning
-  const [windowMinutes, setWindowMinutes] = useState(3);
-  const [timeGapHours, setTimeGapHours] = useState(2);
-  const [distanceMeters, setDistanceMeters] = useState(300);
-  const [tripTitle, setTripTitle] = useState('My Travel Log');
+  const [windowMinutes, setWindowMinutes] = useState(15);
+  const [timeGapHours, setTimeGapHours] = useState(3);
+  const [distanceMeters, setDistanceMeters] = useState(2000);
+  const [tripTitle, setTripTitle] = useState('Trip To Spain');
 
   // Extraction results
   const [extractedAssets, setExtractedAssets] = useState<PhotoAsset[]>([]);
@@ -57,25 +57,10 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
 
-    const files = Array.from(fileList).filter((f) => {
-      const name = f.name.toLowerCase();
-      return (
-        name.endsWith('.jpg') ||
-        name.endsWith('.jpeg') ||
-        name.endsWith('.png') ||
-        name.endsWith('.heic') ||
-        name.endsWith('.heif')
-      );
-    });
-
-    if (files.length === 0) {
-      alert('Please upload .jpg, .jpeg, .png, or Apple .heic files.');
-      return;
-    }
-
+    const files = Array.from(fileList);
     setIsProcessing(true);
     setProgressPercent(10);
-    setProgressMsg(`Ingesting ${files.length} photos (parsing EXIF & converting HEIC)...`);
+    setProgressMsg(`Reading ${files.length} photos...`);
 
     try {
       // 1. Process EXIF metadata
@@ -85,10 +70,15 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
         setProgressMsg(`Extracting EXIF metadata: ${name} (${current}/${total})`);
       });
 
-      // 2. Run Spatiotemporal Stitcher
+      // 2. Sort chronologically
+      const sorted = [...rawAssets].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+
+      // 3. Run Spatiotemporal Stitcher
       setProgressPercent(75);
-      setProgressMsg('Matching DSLR orphans within ±' + windowMinutes + 'm window...');
-      const stitched = matchOrphansToAnchors(rawAssets, windowMinutes * 60);
+      setProgressMsg('Matching DSLR orphans to GPS anchor shots...');
+      const stitched = matchOrphansToAnchors(sorted, windowMinutes * 60);
 
       setExtractedAssets(stitched.photos);
       setStats({
@@ -112,19 +102,24 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
     if (extractedAssets.length === 0) return;
 
     setIsProcessing(true);
-    setProgressMsg('Clustering stops and enriching with OSM Nominatim & Wikimedia...');
+    setProgressMsg('Clustering stops and enriching with Reverse Geocoding & Wikimedia...');
 
     try {
-      // 1. Cluster stops
-      const initialStops = clusterPhotosIntoStops(extractedAssets, {
+      // 1. Ensure sorted chronologically
+      const sortedAssets = [...extractedAssets].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+
+      // 2. Cluster stops
+      const initialStops = clusterPhotosIntoStops(sortedAssets, {
         maxTimeGapHours: timeGapHours,
         maxDistanceMeters: distanceMeters,
       });
 
-      // 2. Reverse Geocode & Historical Enrich stops in parallel
+      // 3. Reverse Geocode & Historical Enrich stops in parallel
       setProgressMsg(`Enriching ${initialStops.length} stops with reverse geocoding & historical trivia...`);
       const enrichedStops = await Promise.all(
-        initialStops.map(async (stop, idx) => {
+        initialStops.map(async (stop) => {
           const enriched = await enrichStop(stop);
           return enriched;
         })
@@ -138,7 +133,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
 
       const trip: EpiLogTrip = {
         id: `trip-${Date.now().toString(36)}`,
-        title: tripTitle || 'Travel Journey',
+        title: tripTitle || 'Trip To Spain',
         dateRange: { start: minDate, end: maxDate },
         stops: enrichedStops,
         totalDistanceKm,
