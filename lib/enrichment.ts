@@ -16,7 +16,29 @@ export async function reverseGeocode(
     return geoCache.get(cacheKey)!;
   }
 
-  // Strategy 1: BigDataCloud Client Reverse Geocode API (Fastest, zero rate limit)
+  // Strategy 1: Photon Komoot OSM API (Detailed POIs, street names, plazas)
+  try {
+    const url = `https://photon.komoot.io/reverse?lat=${coords.lat}&lon=${coords.lng}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+    if (res.ok) {
+      const data = await res.json();
+      const feature = data.features?.[0]?.properties;
+      if (feature) {
+        const poiName = feature.name || feature.street || feature.district || feature.locality || feature.city || 'Travel Stop';
+        const city = feature.city || feature.county || feature.state || 'Local Stop';
+        const country = feature.country || 'Spain';
+        const neighborhood = feature.district || feature.locality || feature.suburb || undefined;
+
+        const result = { poiName, neighborhood, city, country };
+        geoCache.set(cacheKey, result);
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn('Photon geocode failed, trying BigDataCloud fallback:', err);
+  }
+
+  // Strategy 2: BigDataCloud Client Reverse Geocode API (Fast fallback)
   try {
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.lat}&longitude=${coords.lng}&localityLanguage=en`;
     const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
@@ -41,29 +63,7 @@ export async function reverseGeocode(
       return result;
     }
   } catch (err) {
-    console.warn('BigDataCloud geocode failed, trying Photon OSM fallback:', err);
-  }
-
-  // Strategy 2: Photon Komoot OSM API (Free open-source geocoding with detailed POIs)
-  try {
-    const url = `https://photon.komoot.io/reverse?lat=${coords.lat}&lon=${coords.lng}`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
-    if (res.ok) {
-      const data = await res.json();
-      const feature = data.features?.[0]?.properties;
-      if (feature) {
-        const poiName = feature.name || feature.street || feature.district || feature.city || 'Travel Stop';
-        const city = feature.city || feature.state || feature.county || 'Local Stop';
-        const country = feature.country || '';
-        const neighborhood = feature.district || feature.suburb || undefined;
-
-        const result = { poiName, neighborhood, city, country };
-        geoCache.set(cacheKey, result);
-        return result;
-      }
-    }
-  } catch (err) {
-    console.warn('Photon geocode fallback failed:', err);
+    console.warn('BigDataCloud geocode fallback failed:', err);
   }
 
   // Strategy 3: Coordinates fallback
