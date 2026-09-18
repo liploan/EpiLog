@@ -80,9 +80,9 @@ function resolveCoordinates(
     if (lat >= 40.35 && lat <= 40.55) {
       lng = -3.7038; // Madrid
     } else if (lat >= 40.93 && lat <= 41.05) {
-      lng = -3.8122; // Pedraza / Segovia Province
+      lng = -5.6642; // Salamanca (Plaza Mayor & Historic University)
     } else if (lat >= 40.85 && lat < 40.93) {
-      lng = -4.1215; // Segovia City
+      lng = -4.1215; // Segovia (Roman Aqueduct & Alcázar)
     } else if (lat >= 39.80 && lat <= 39.95) {
       lng = -4.0245; // Toledo
     } else if (lat >= 39.40 && lat <= 39.60) {
