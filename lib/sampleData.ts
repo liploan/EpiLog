@@ -5,7 +5,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
   title: 'Kyoto & Higashiyama Autumn Odyssey',
   dateRange: {
     start: new Date('2024-11-14T08:30:00Z'),
-    end: new Date('2024-11-16T18:45:00Z'),
+    end: new Date('2024-11-16T20:30:00Z'),
   },
   totalDistanceKm: 24.8,
   stops: [
@@ -33,17 +33,17 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-inari-2',
-          previewUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1200&auto=format&fit=crop',
-          timestamp: new Date('2024-11-14T08:36:20Z'),
+          previewUrl: 'https://images.unsplash.com/photo-1558862107-d49ef2a04d72?q=80&w=1200&auto=format&fit=crop',
+          timestamp: new Date('2024-11-14T08:42:20Z'),
           coords: { lat: 34.9671, lng: 135.7727 },
           cameraModel: 'Sony A7 IV (85mm f/1.4 GM)',
           isAnchor: false,
           matchedAnchorId: 'p-inari-1',
-          timeDiffSeconds: 70,
+          timeDiffSeconds: 430,
         },
         {
           id: 'p-inari-3',
-          previewUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-14T09:20:00Z'),
           coords: { lat: 34.968, lng: 135.774 },
           cameraModel: 'iPhone 15 Pro (13mm Ultra-wide)',
@@ -198,7 +198,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       startTime: new Date('2024-11-16T18:00:00Z'),
       endTime: new Date('2024-11-16T20:30:00Z'),
       centerCoords: { lat: 35.0062, lng: 135.7709, altitude: 38 },
-      poiName: 'Pontocho Alley & Kamogawa Riverbanks',
+      poiName: 'Pontocho Alley & Gion Kaiseki Gastronomy',
       locationContext: {
         neighborhood: 'Nakagyo Ward',
         city: 'Kyoto',
@@ -208,7 +208,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-ponto-1',
-          previewUrl: 'https://images.unsplash.com/photo-1554797589-7241bb691973?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-16T18:15:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'Sony A7 IV (35mm f/1.4 GM)',
@@ -218,40 +218,58 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-ponto-2',
-          previewUrl: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1200&auto=format&fit=crop',
           timestamp: new Date('2024-11-16T18:16:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'iPhone 15 Pro (24mm Night Mode)',
           isAnchor: true,
         },
+        {
+          id: 'p-ponto-3',
+          previewUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=1200&auto=format&fit=crop',
+          timestamp: new Date('2024-11-16T19:05:00Z'),
+          coords: { lat: 35.0062, lng: 135.7709 },
+          cameraModel: 'iPhone 15 Pro (48mm Macro Mode)',
+          isAnchor: true,
+        },
       ],
       narrativeCaption:
-        'Red paper lanterns illuminate the narrow cobblestone alleyway, filled with the aroma of charcoal yakitori and simmering dashi broths.',
+        'Warm lantern light spills onto polished wooden machiya facades as an exquisite multi-course autumnal Kaiseki feast is served in intimate lacquered bowls.',
       reflection: {
         category: 'Culinary',
         takeawayText:
-          'Traditional kaiseki cuisine is built upon "shun"—celebrating ingredients harvested at the exact peak of seasonality, paired with soft Kyoto groundwaters.',
+          'Traditional Kyoto Kyo-ryori centers around "shun" (旬)—celebrating seasonal micro-harvests and balancing five distinct flavors and textures with soft underground well waters.',
       },
       worldOnThisDay: {
         dateStr: 'November 16',
         headline: '1945: UNESCO was founded with the signing of its Constitution in London.',
         sourceUrl: 'https://en.wikipedia.org/wiki/UNESCO',
       },
+      exactVenueName: 'Kitcho Gion (吉兆)',
+      resolvedPrecisionMeters: 1.0,
       detectedDishes: [
         {
-          name: 'Kyoto Seasonal Kaiseki Course',
-          cuisineOrOrigin: 'Kyoto Traditional Kyo-ryori',
-          description: 'Multi-course seasonal tasting featuring charcoal-grilled duck breast with sansho pepper, yuba (tofu skin), and simmered seasonal bamboo shoots.',
-          ingredients: ['Kamo Duck', 'Fresh Yuba', 'Sansho Pepper', 'Matsutake Dashi'],
-          pairingOrNotes: 'Paired with dry Fushimi Junmai Daiginjo sake',
+          name: 'Kyoto Autumn Kaiseki Tasting Course',
+          cuisineOrOrigin: 'Traditional Kyo-ryori',
+          description: 'A multi-course tasting highlighting charcoal-seared Kamo duck, simmered seasonal bamboo shoots, and fresh yuba in delicate matsutake dashi.',
+          ingredients: ['Kamo Duck', 'Fresh Yuba (Tofu Skin)', 'Matsutake Dashi', 'Sansho Pepper'],
+          pairingOrNotes: 'Paired with chilled Fushimi Junmai Daiginjo sake',
         },
         {
-          name: 'Charcoal Binchotan Yakitori',
-          cuisineOrOrigin: 'Izakaya Gastronomy',
-          description: 'Skewered local heirloom chicken glazed in tare sauce aged for three decades over white binchotan coals.',
-          ingredients: ['Tambadori Chicken', 'Aged Tare Glaze', 'Shichimi Togarashi'],
+          name: 'Edomae Omakase Nigiri Selection',
+          cuisineOrOrigin: 'Artisanal Nigiri',
+          description: 'Line-caught Hon-Maguro bluefin otoro and shima-aji cured over red akazu seasoned vinegared rice with freshly grated Shizuoka wasabi.',
+          ingredients: ['Otoro Bluefin Tuna', 'Akazu Sushi Rice', 'Fresh Wasabi', 'Shima-Aji'],
+          pairingOrNotes: 'Served with warm sencha green tea',
+        },
+        {
+          name: 'Artisanal Hakata Tonkotsu & Dashi Ramen',
+          cuisineOrOrigin: 'Kyoto Noodle Craft',
+          description: 'Hand-pulled wheat noodles steeped in a rich 18-hour broth, topped with braised chashu pork belly, ajitsuke tamago, and fragrant black garlic oil.',
+          ingredients: ['Braised Pork Belly', 'Ramen Noodles', 'Ajitsuke Egg', 'Nori', 'Black Garlic Mayu'],
         },
       ],
     },
   ],
 };
+
