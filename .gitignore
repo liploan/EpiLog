@@ -33,3 +33,6 @@ next-env.d.ts
 # local demo files
 /demo/
 /demos/
+spain_gps_analysis.png
+spain_gps_data.json
+

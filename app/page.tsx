@@ -115,6 +115,8 @@ export default function EpiLogDashboard() {
         city: stop.locationContext.city,
         country: stop.locationContext.country,
         stopIndex: stop.stopIndex,
+        lat: stop.centerCoords.lat,
+        lng: stop.centerCoords.lng,
         photoBase64,
         existingReflection: {
           category: stop.reflection.category,
@@ -125,6 +127,10 @@ export default function EpiLogDashboard() {
       if (result.success) {
         handleUpdateStop({
           ...stop,
+          centerCoords: result.exactVenue?.coords || stop.centerCoords,
+          exactVenueName: result.exactVenue?.name || result.detectedVenueName || stop.exactVenueName,
+          resolvedPrecisionMeters: result.resolvedPrecisionMeters || stop.resolvedPrecisionMeters,
+          venueCandidates: result.venueCandidates || stop.venueCandidates,
           narrativeCaption: result.narrativeCaption,
           reflection: {
             ...stop.reflection,

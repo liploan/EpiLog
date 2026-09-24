@@ -46,6 +46,15 @@ export interface TravelStop {
     headline: string;
     sourceUrl?: string;
   };
+  exactVenueName?: string;
+  resolvedPrecisionMeters?: number;
+  venueCandidates?: {
+    name: string;
+    type: string;
+    coords: GeoCoordinate;
+    address?: string;
+    distanceFromLatMeters?: number;
+  }[];
 }
 
 export interface EpiLogTrip {

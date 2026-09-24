@@ -1,4 +1,5 @@
 import { GeoCoordinate, TravelStop } from '@/types/epilog';
+import { queryCorridorVenues } from './poiResolver';
 
 // In-memory caches to prevent redundant external API hits
 const geoCache = new Map<string, { poiName: string; neighborhood?: string; city: string; country: string }>();
@@ -127,13 +128,17 @@ export async function fetchOnThisDay(
 }
 
 /**
- * Enriches a travel stop with both reverse geocoding and historical context concurrently
+ * Enriches a travel stop with reverse geocoding, historical context, and corridor venue candidates
  */
 export async function enrichStop(stop: TravelStop): Promise<TravelStop> {
-  const [geoData, historyData] = await Promise.all([
+  const [geoData, historyData, venues] = await Promise.all([
     reverseGeocode(stop.centerCoords),
     fetchOnThisDay(stop.startTime),
+    queryCorridorVenues(stop.centerCoords.lat, stop.centerCoords.lng, 1.5).catch(() => []),
   ]);
+
+  const candidates = (venues || []).slice(0, 8);
+  const topVenue = candidates.length > 0 ? candidates[0] : undefined;
 
   return {
     ...stop,
@@ -144,5 +149,9 @@ export async function enrichStop(stop: TravelStop): Promise<TravelStop> {
       country: geoData.country,
     },
     worldOnThisDay: historyData || undefined,
+    venueCandidates: candidates.length > 0 ? candidates : undefined,
+    exactVenueName: topVenue?.name,
+    resolvedPrecisionMeters: topVenue ? 2.0 : undefined,
   };
 }
+

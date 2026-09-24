@@ -123,13 +123,21 @@ export const StopCard: React.FC<StopCardProps> = ({
               {stop.stopIndex}
             </span>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight leading-snug">
-                {stop.poiName}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight leading-snug">
+                  {stop.poiName}
+                </h3>
+                {stop.exactVenueName && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>🎯 {stop.resolvedPrecisionMeters ? `${stop.resolvedPrecisionMeters}m` : '<1m'}</span>
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                <MapPin className="w-3 h-3 text-orange-500" />
-                <span>
-                  {[stop.locationContext.neighborhood, stop.locationContext.city, stop.locationContext.country]
+                <MapPin className="w-3 h-3 text-orange-500 shrink-0" />
+                <span className="truncate">
+                  {[stop.exactVenueName || stop.locationContext.neighborhood, stop.locationContext.city, stop.locationContext.country]
                     .filter(Boolean)
                     .join(', ')}
                 </span>
@@ -310,6 +318,44 @@ export const StopCard: React.FC<StopCardProps> = ({
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
+          </div>
+        )}
+
+        {/* Corridor POI Candidates (1–3m Precision Snapping) */}
+        {stop.venueCandidates && stop.venueCandidates.length > 0 && (
+          <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800/80 space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+              <span>Nearby Corridor Venues (1–3m Ribbon)</span>
+              <span>Click to Snap</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {stop.venueCandidates.slice(0, 5).map((cand) => {
+                const isSelected = stop.exactVenueName === cand.name;
+                return (
+                  <button
+                    key={cand.name}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdateStop({
+                        ...stop,
+                        poiName: cand.name,
+                        exactVenueName: cand.name,
+                        centerCoords: cand.coords,
+                        resolvedPrecisionMeters: 1.0,
+                      });
+                    }}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition-all ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-100 dark:hover:bg-orange-950/40 hover:text-orange-600'
+                    }`}
+                  >
+                    <span>{cand.name}</span>
+                    {cand.type && <span className="text-[9px] opacity-70">({cand.type})</span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

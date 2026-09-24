@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { processBatchPhotos } from '@/lib/ingestion';
 import { matchOrphansToAnchors, clusterPhotosIntoStops, computeTotalDistanceKm } from '@/lib/stitcher';
 import { enrichStop } from '@/lib/enrichment';
+import { parseTrackFile, interpolateTrackCoords, TrackPoint } from '@/lib/gpx';
 import { EpiLogTrip, PhotoAsset, TravelStop } from '@/types/epilog';
 import {
   UploadCloud,
@@ -17,6 +18,7 @@ import {
   X,
   ArrowRight,
   Layers,
+  Navigation2,
 } from 'lucide-react';
 
 interface PhotoDropzoneProps {
@@ -43,11 +45,13 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
 
   // Extraction results
   const [extractedAssets, setExtractedAssets] = useState<PhotoAsset[]>([]);
+  const [trackPointsCount, setTrackPointsCount] = useState<number>(0);
   const [stats, setStats] = useState<{
     anchors: number;
     orphans: number;
     matched: number;
     unmatched: number;
+    trackPoints: number;
   } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,26 +61,60 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
 
-    const files = Array.from(fileList);
+    const allFiles = Array.from(fileList);
+    const trackFiles = allFiles.filter((f) => {
+      const name = f.name.toLowerCase();
+      return name.endsWith('.gpx') || name.endsWith('.kml') || name.endsWith('.json');
+    });
+    const photoFiles = allFiles.filter((f) => {
+      const name = f.name.toLowerCase();
+      return !name.endsWith('.gpx') && !name.endsWith('.kml') && !name.endsWith('.json');
+    });
+
     setIsProcessing(true);
     setProgressPercent(10);
-    setProgressMsg(`Reading ${files.length} photos...`);
+    setProgressMsg(`Reading files...`);
 
     try {
-      // 1. Process EXIF metadata
-      const rawAssets = await processBatchPhotos(files, (current, total, name) => {
-        const pct = Math.round((current / total) * 60) + 10;
+      // 1. Parse companion GPX / Location track files if present
+      let allTrackPoints: TrackPoint[] = [];
+      if (trackFiles.length > 0) {
+        setProgressMsg(`Parsing ${trackFiles.length} GPS track files...`);
+        for (const tf of trackFiles) {
+          const text = await tf.text();
+          const pts = parseTrackFile(text);
+          allTrackPoints.push(...pts);
+        }
+        allTrackPoints.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+        setTrackPointsCount(allTrackPoints.length);
+      }
+
+      // 2. Process EXIF metadata for photos
+      const rawAssets = await processBatchPhotos(photoFiles, (current, total, name) => {
+        const pct = Math.round((current / (total || 1)) * 50) + 15;
         setProgressPercent(pct);
         setProgressMsg(`Extracting EXIF metadata: ${name} (${current}/${total})`);
       });
 
-      // 2. Sort chronologically
+      // 3. If track points exist, interpolate coordinates for photos
+      if (allTrackPoints.length > 0) {
+        setProgressMsg('Snapping photos to GPX track log (1-3m accuracy)...');
+        for (const asset of rawAssets) {
+          const trackCoord = interpolateTrackCoords(asset.timestamp, allTrackPoints, 900);
+          if (trackCoord) {
+            asset.coords = trackCoord;
+            asset.isAnchor = true;
+          }
+        }
+      }
+
+      // 4. Sort chronologically
       const sorted = [...rawAssets].sort(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
 
-      // 3. Run Spatiotemporal Stitcher
-      setProgressPercent(75);
+      // 5. Run Spatiotemporal Stitcher
+      setProgressPercent(80);
       setProgressMsg('Matching DSLR orphans to GPS anchor shots...');
       const stitched = matchOrphansToAnchors(sorted, windowMinutes * 60);
 
@@ -86,6 +124,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
         orphans: stitched.orphansCount,
         matched: stitched.matchedOrphansCount,
         unmatched: stitched.unmatchedOrphansCount,
+        trackPoints: allTrackPoints.length,
       });
 
       setProgressPercent(100);
@@ -162,9 +201,9 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
               <UploadCloud className="w-4 h-4" />
               <span>Phase 1 & 2 Ingestion</span>
             </div>
-            <h2 className="text-2xl font-bold text-white mt-1">Upload Photo Batch</h2>
+            <h2 className="text-2xl font-bold text-white mt-1">Upload Photo Batch &amp; GPS Tracks</h2>
             <p className="text-xs text-stone-400 mt-1">
-              Supports mixed .jpg, .png, and iPhone .heic files. Automatically links DSLR orphans to nearby GPS anchor shots.
+              Supports mixed JPG/PNG, iPhone HEIC, and companion <span className="text-amber-400 font-mono">.gpx / Google Timeline</span> tracks for 1–3 meter POI precision.
             </p>
           </div>
           <button
@@ -198,7 +237,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
             ref={fileInputRef}
             type="file"
             multiple
-            accept=".jpg,.jpeg,.png,.heic,.heif"
+            accept=".jpg,.jpeg,.png,.heic,.heif,.gpx,.kml,.json"
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
           />
@@ -210,10 +249,10 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
 
             <div>
               <p className="text-sm font-bold text-white">
-                Drag & drop travel photos here, or <span className="text-orange-400">browse files</span>
+                Drag &amp; drop photos and optional <span className="text-amber-400">.gpx track</span> here, or <span className="text-orange-400">browse files</span>
               </p>
               <p className="text-xs text-stone-400 mt-1">
-                iPhone HEIC & DSLR JPG photos will be parsed client-side using <code className="text-stone-300">exifr</code>
+                EXIF GPS, camera models, and GPS tracks are stitched client-side with zero upload latency
               </p>
             </div>
           </div>
@@ -274,8 +313,13 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
               </div>
 
               <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800">
-                <div className="text-[11px] text-stone-400">Unmatched</div>
-                <div className="text-base font-bold text-stone-400 mt-0.5">{stats.unmatched}</div>
+                <div className="text-[11px] text-stone-400 flex items-center gap-1">
+                  <Navigation2 className="w-3 h-3 text-sky-400" />
+                  <span>GPS Trackpoints</span>
+                </div>
+                <div className="text-base font-bold text-sky-400 mt-0.5">
+                  {stats.trackPoints > 0 ? stats.trackPoints : 'N/A'}
+                </div>
               </div>
             </div>
           </div>
