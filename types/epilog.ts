@@ -21,6 +21,14 @@ export interface PhotoAsset {
 
 export type ReflectionCategory = 'Architectural' | 'Culinary' | 'Natural' | 'Cultural';
 
+export interface CulinaryDish {
+  name: string;
+  cuisineOrOrigin?: string;
+  description?: string;
+  ingredients?: string[];
+  pairingOrNotes?: string;
+}
+
 export interface TravelStop {
   id: string;
   stopIndex: number;
@@ -55,6 +63,7 @@ export interface TravelStop {
     address?: string;
     distanceFromLatMeters?: number;
   }[];
+  detectedDishes?: CulinaryDish[];
 }
 
 export interface EpiLogTrip {

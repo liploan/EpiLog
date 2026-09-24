@@ -16,6 +16,7 @@ import {
   MapPin,
   Camera,
   Calendar,
+  Utensils,
 } from 'lucide-react';
 
 interface BookMonographModalProps {
@@ -178,6 +179,21 @@ export const BookMonographModal: React.FC<BookMonographModalProps> = ({
                     {currentStop.reflection.takeawayText}
                   </p>
                 </div>
+
+                {/* Gastronomic Notes if Dishes Identified */}
+                {currentStop.detectedDishes && currentStop.detectedDishes.length > 0 && (
+                  <div className="p-3 rounded-lg bg-[#fdfaf5] border border-stone-300 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-wider text-amber-950">
+                      <Utensils className="w-3 h-3 text-amber-700" />
+                      <span>Gastronomy: {currentStop.detectedDishes.map((d) => d.name).join(' &bull; ')}</span>
+                    </div>
+                    {currentStop.detectedDishes[0].description && (
+                      <p className="text-[10.5px] font-serif text-stone-700 italic">
+                        "{currentStop.detectedDishes[0].description}"
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* World On This Day */}
                 {currentStop.worldOnThisDay && (

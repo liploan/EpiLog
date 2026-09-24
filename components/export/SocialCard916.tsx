@@ -143,6 +143,14 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
           </div>
         )}
 
+        {/* Dish / Gastronomy Stamp Tag */}
+        {stop.detectedDishes && stop.detectedDishes.length > 0 && (
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-amber-500/40 text-[8.5px] text-amber-300 font-semibold flex items-center gap-1 shadow-md">
+            <Utensils className="w-2.5 h-2.5 text-amber-400" />
+            <span className="truncate max-w-[170px]">{stop.detectedDishes[0].name}</span>
+          </div>
+        )}
+
         {/* Camera Stamp Tag */}
         {heroPhoto?.cameraModel && (
           <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[8px] text-white/90 font-mono">

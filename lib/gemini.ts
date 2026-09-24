@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ReflectionCategory, GeoCoordinate } from '@/types/epilog';
+import { ReflectionCategory, GeoCoordinate, CulinaryDish } from '@/types/epilog';
 import { queryCorridorVenues, matchVenueFromCandidates, VenueCandidate } from './poiResolver';
 
 export interface SynthesizeParams {
@@ -29,12 +29,13 @@ export interface SynthesizeResult {
   exactVenue?: VenueCandidate;
   venueCandidates?: VenueCandidate[];
   resolvedPrecisionMeters?: number;
+  detectedDishes?: CulinaryDish[];
   error?: string;
 }
 
 /**
- * Synthesizes scene narrative caption, takeaway reflection, and sub-meter POI resolution
- * using client-side Gemini Vision + OpenStreetMap corridor geometric intersection
+ * Synthesizes scene narrative caption, takeaway reflection, sub-meter POI resolution,
+ * and automatic dish/gastronomy identification using client-side Gemini Vision
  * (Fully compatible with static GitHub Pages hosting - zero backend server required)
  */
 export async function synthesizeSceneWithGemini(
@@ -88,23 +89,36 @@ export async function synthesizeSceneWithGemini(
       ? `\nNearby Known Venues along this street corridor: [${candidates.map((c) => `"${c.name}" (${c.type})`).slice(0, 15).join(', ')}]`
       : '';
 
-    const prompt = `You are EpiLog's travel intelligence synthesizer and sub-meter precision spatial matcher.
-Analyze this travel stop and its location context:
+    const prompt = `You are EpiLog's travel intelligence synthesizer, culinary gastronomy analyzer, and sub-meter precision spatial matcher.
+Analyze this travel stop, its photo, and its location context:
 Location: ${locationContextStr || 'Unknown location'}
 ${params.existingReflection?.userNotes ? `User notes: "${params.existingReflection.userNotes}"` : ''}
 ${candidateNamesStr}
 
-Inspect the image thoroughly for any storefront signs, restaurant names, chalkboard menus, architectural plaques, monuments, or landmarks.
+Please perform the following visual analyses on the image:
+1. STOREFRONT & SIGNAGE: Look for restaurant/bar/cafe signs, chalkboard menus, plaques, or monument names.
+2. DISH IDENTIFICATION: If food, plates, tapas, wine, or beverages are present, identify the specific dish name(s) (e.g. "Jamón Ibérico de Bellota", "Paella de Marisco", "Churros con Chocolate", "Salmorejo Cordobés", "Tortilla Española", "Croquetas de Jamón", "Matcha & Wagashi Course"), the regional cuisine style, key ingredients, and a short 1-sentence appetizing description.
+3. SCENE SYNTHESIS: Provide an evocative editorial caption and a "What I Learned" takeaway insight. If dishes are clearly present, set "category" to "Culinary".
 
 Generate an editorial, evocative travel log entry adhering strictly to this JSON format:
 {
   "narrativeCaption": "1-2 evocative sentences summarizing the scene mood, atmosphere, and visual essence (like a National Geographic or Monocle travel journal).",
   "category": "Architectural" | "Culinary" | "Natural" | "Cultural",
-  "takeawayText": "A 1-2 sentence 'What I Learned' insight explaining a cultural, architectural, historical, or ecological truth about this place.",
+  "takeawayText": "A 1-2 sentence 'What I Learned' insight explaining a cultural, culinary, architectural, or historical truth about this place.",
   "detectedVenueName": "The specific restaurant, cafe, bar, museum, or landmark name visible in the image or signs, or null if no specific name is visible",
-  "detectedAddress": "Street name or number visible in the photo (if any), or null"
+  "detectedAddress": "Street name or number visible in the photo (if any), or null",
+  "detectedDishes": [
+    {
+      "name": "Specific dish or beverage name",
+      "cuisineOrOrigin": "Regional cuisine style (e.g. Spanish Castilian, Tapas, Andalusian, Kyoto Kaiseki)",
+      "description": "1-sentence sensory culinary description highlighting preparation, flavor profile, or presentation",
+      "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
+      "pairingOrNotes": "Optional drink pairing or gastronomic tradition (e.g. Paired with Ribera del Duero red wine)"
+    }
+  ]
 }
 
+If no food or dishes are visible in the image, return "detectedDishes": [].
 Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
 
     const parts: any[] = [prompt];
@@ -144,16 +158,27 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
       matchedVenue = matchVenueFromCandidates(parsed.detectedVenueName, candidates);
     }
 
+    const dishes: CulinaryDish[] = Array.isArray(parsed.detectedDishes)
+      ? parsed.detectedDishes.filter((d: any) => d && d.name)
+      : [];
+
+    // If dishes were detected, ensure category is Culinary if not explicitly overridden
+    let finalCategory = (parsed.category as ReflectionCategory) || currentCategory;
+    if (dishes.length > 0 && currentCategory === 'Cultural') {
+      finalCategory = 'Culinary';
+    }
+
     return {
       success: true,
       narrativeCaption: parsed.narrativeCaption,
-      category: (parsed.category as ReflectionCategory) || currentCategory,
+      category: finalCategory,
       takeawayText: parsed.takeawayText,
       detectedVenueName: parsed.detectedVenueName || undefined,
       detectedAddress: parsed.detectedAddress || undefined,
       exactVenue: matchedVenue || undefined,
       venueCandidates: candidates.slice(0, 8),
       resolvedPrecisionMeters: matchedVenue ? 1.0 : (candidates.length > 0 ? 3.0 : undefined),
+      detectedDishes: dishes.length > 0 ? dishes : undefined,
       isMock: false,
     };
   } catch (err: any) {
@@ -172,4 +197,5 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
     };
   }
 }
+
 

@@ -237,6 +237,21 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         headline: '1945: UNESCO was founded with the signing of its Constitution in London.',
         sourceUrl: 'https://en.wikipedia.org/wiki/UNESCO',
       },
+      detectedDishes: [
+        {
+          name: 'Kyoto Seasonal Kaiseki Course',
+          cuisineOrOrigin: 'Kyoto Traditional Kyo-ryori',
+          description: 'Multi-course seasonal tasting featuring charcoal-grilled duck breast with sansho pepper, yuba (tofu skin), and simmered seasonal bamboo shoots.',
+          ingredients: ['Kamo Duck', 'Fresh Yuba', 'Sansho Pepper', 'Matsutake Dashi'],
+          pairingOrNotes: 'Paired with dry Fushimi Junmai Daiginjo sake',
+        },
+        {
+          name: 'Charcoal Binchotan Yakitori',
+          cuisineOrOrigin: 'Izakaya Gastronomy',
+          description: 'Skewered local heirloom chicken glazed in tare sauce aged for three decades over white binchotan coals.',
+          ingredients: ['Tambadori Chicken', 'Aged Tare Glaze', 'Shichimi Togarashi'],
+        },
+      ],
     },
   ],
 };

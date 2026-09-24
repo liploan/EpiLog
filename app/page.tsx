@@ -131,6 +131,7 @@ export default function EpiLogDashboard() {
           exactVenueName: result.exactVenue?.name || result.detectedVenueName || stop.exactVenueName,
           resolvedPrecisionMeters: result.resolvedPrecisionMeters || stop.resolvedPrecisionMeters,
           venueCandidates: result.venueCandidates || stop.venueCandidates,
+          detectedDishes: result.detectedDishes || stop.detectedDishes,
           narrativeCaption: result.narrativeCaption,
           reflection: {
             ...stop.reflection,

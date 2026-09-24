@@ -199,6 +199,14 @@ export const StopCard: React.FC<StopCardProps> = ({
             )}
           </div>
 
+          {/* Food / Dish Badge */}
+          {stop.detectedDishes && stop.detectedDishes.length > 0 && (
+            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-amber-500/40 text-[11px] font-semibold text-amber-300 shadow-md">
+              <Utensils className="w-3.5 h-3.5 text-amber-400" />
+              <span>{stop.detectedDishes.length === 1 ? stop.detectedDishes[0].name : `${stop.detectedDishes.length} Dishes Identified`}</span>
+            </div>
+          )}
+
           {/* Number of photos pill */}
           <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] font-semibold text-white">
             {selectedPhotoIndex + 1} / {stop.photos.length}
@@ -295,6 +303,57 @@ export const StopCard: React.FC<StopCardProps> = ({
             </div>
           )}
         </div>
+
+        {/* Gastronomy & Identified Dishes Card */}
+        {stop.detectedDishes && stop.detectedDishes.length > 0 && (
+          <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                <Utensils className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Gastronomy &bull; Identified Dishes
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                AI Vision
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {stop.detectedDishes.map((dish, idx) => (
+                <div key={idx} className="p-2.5 rounded-lg bg-white/80 dark:bg-stone-900/80 border border-amber-200/50 dark:border-amber-900/40 space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-stone-900 dark:text-amber-100">{dish.name}</span>
+                    {dish.cuisineOrOrigin && (
+                      <span className="text-[10px] text-amber-700 dark:text-amber-300/80 font-medium shrink-0">
+                        {dish.cuisineOrOrigin}
+                      </span>
+                    )}
+                  </div>
+                  {dish.description && (
+                    <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-snug">
+                      {dish.description}
+                    </p>
+                  )}
+                  {dish.ingredients && dish.ingredients.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {dish.ingredients.map((ing, iIdx) => (
+                        <span key={iIdx} className="px-1.5 py-0.5 rounded text-[9.5px] bg-amber-100/80 dark:bg-stone-800 text-amber-900 dark:text-amber-200">
+                          {ing}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {dish.pairingOrNotes && (
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 italic pt-0.5">
+                      &bull; {dish.pairingOrNotes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* World On This Day Banner (Wikimedia API) */}
         {stop.worldOnThisDay && (
