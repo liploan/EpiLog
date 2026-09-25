@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { EpiLogTrip, TravelStop } from '@/types/epilog';
-import { SAMPLE_KYOTO_TRIP } from '@/lib/sampleData';
+import { SAMPLE_KYOTO_TRIP, SAMPLE_BARCELONA_TRIP } from '@/lib/sampleData';
 import { Header } from '@/components/navigation/Header';
 import { TimelineView } from '@/components/timeline/TimelineView';
 import { SocialCardModal } from '@/components/export/SocialCardModal';
@@ -75,9 +75,10 @@ export default function EpiLogDashboard() {
     localStorage.setItem('epilog_gemini_api_key', newKey);
   };
 
-  const handleLoadSampleTrip = () => {
-    setTrip(SAMPLE_KYOTO_TRIP);
-    setActiveStopId(SAMPLE_KYOTO_TRIP.stops[0]?.id || null);
+  const handleLoadSampleTrip = (tripKey: 'kyoto' | 'barcelona' = 'kyoto') => {
+    const selected = tripKey === 'barcelona' ? SAMPLE_BARCELONA_TRIP : SAMPLE_KYOTO_TRIP;
+    setTrip(selected);
+    setActiveStopId(selected.stops[0]?.id || null);
   };
 
   const handleTripGenerated = (newTrip: EpiLogTrip) => {
@@ -163,6 +164,7 @@ export default function EpiLogDashboard() {
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-stone-950 text-stone-100">
       {/* Top Navigation Bar */}
       <Header
+        currentTripId={trip.id}
         onLoadSampleTrip={handleLoadSampleTrip}
         onOpenUploadModal={() => setIsUploadModalOpen(true)}
         onOpenSettingsModal={() => setIsSettingsOpen(true)}

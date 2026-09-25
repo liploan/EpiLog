@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Compass,
   UploadCloud,
@@ -10,10 +10,13 @@ import {
   List,
   RotateCcw,
   BookOpen,
+  ChevronDown,
+  Globe,
 } from 'lucide-react';
 
 interface HeaderProps {
-  onLoadSampleTrip: () => void;
+  currentTripId?: string;
+  onLoadSampleTrip: (tripKey: 'kyoto' | 'barcelona') => void;
   onOpenUploadModal: () => void;
   onOpenSettingsModal: () => void;
   onOpenBookModal: () => void;
@@ -22,6 +25,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  currentTripId,
   onLoadSampleTrip,
   onOpenUploadModal,
   onOpenSettingsModal,
@@ -29,6 +33,8 @@ export const Header: React.FC<HeaderProps> = ({
   mobileTab,
   onSetMobileTab,
 }) => {
+  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+
   return (
     <header className="h-16 border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30 shrink-0">
       {/* Brand */}
@@ -82,14 +88,61 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Action Toolbar */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={onLoadSampleTrip}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-          title="Reset to Kyoto 3-Day Journey sample dataset"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Sample Kyoto Trip</span>
-        </button>
+        {/* Sample Trip Dropdown Picker */}
+        <div className="relative">
+          <button
+            onClick={() => setDemoMenuOpen(!demoMenuOpen)}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 transition-colors shadow-sm"
+            title="Switch between sample travel demos"
+          >
+            <Globe className="w-3.5 h-3.5 text-orange-500" />
+            <span>{currentTripId === 'trip-barcelona-2024' ? '🇪🇸 Barcelona Demo' : '⛩️ Kyoto Demo'}</span>
+            <ChevronDown className="w-3 h-3 opacity-60 ml-0.5" />
+          </button>
+
+          {demoMenuOpen && (
+            <div className="absolute top-full right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-stone-900 shadow-2xl border border-stone-200 dark:border-stone-800 py-1.5 z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-400 border-b border-stone-100 dark:border-stone-800">
+                Sample Journeys
+              </div>
+              <button
+                onClick={() => {
+                  onLoadSampleTrip('kyoto');
+                  setDemoMenuOpen(false);
+                }}
+                className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition-colors ${
+                  currentTripId !== 'trip-barcelona-2024'
+                    ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 font-bold'
+                    : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                }`}
+              >
+                <div>
+                  <div className="font-semibold">⛩️ Kyoto & Higashiyama</div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">5 stops &bull; Autumn Kaiseki</div>
+                </div>
+                {currentTripId !== 'trip-barcelona-2024' && <span className="w-2 h-2 rounded-full bg-orange-600" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  onLoadSampleTrip('barcelona');
+                  setDemoMenuOpen(false);
+                }}
+                className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition-colors ${
+                  currentTripId === 'trip-barcelona-2024'
+                    ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 font-bold'
+                    : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                }`}
+              >
+                <div>
+                  <div className="font-semibold">🇪🇸 Barcelona Modernisme</div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">4 stops &bull; Gaudí &amp; Tapas</div>
+                </div>
+                {currentTripId === 'trip-barcelona-2024' && <span className="w-2 h-2 rounded-full bg-orange-600" />}
+              </button>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={onOpenBookModal}
@@ -103,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={onOpenUploadModal}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 transition-all"
         >
           <UploadCloud className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Upload Photos</span>
