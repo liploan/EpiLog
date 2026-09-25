@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TravelStop, PhotoAsset, ReflectionCategory } from '@/types/epilog';
-import { formatTime, formatDate, getAssetUrl } from '@/lib/utils';
+import { formatTime, formatDate, getAssetUrl, getMapUrl } from '@/lib/utils';
 import {
   Sparkles,
   Share2,
@@ -20,6 +20,7 @@ import {
   Globe2,
   Check,
   Edit3,
+  Navigation,
 } from 'lucide-react';
 
 interface StopCardProps {
@@ -134,13 +135,27 @@ export const StopCard: React.FC<StopCardProps> = ({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                <MapPin className="w-3 h-3 text-orange-500 shrink-0" />
-                <span className="truncate">
-                  {[stop.exactVenueName || stop.locationContext.neighborhood, stop.locationContext.city, stop.locationContext.country]
-                    .filter(Boolean)
-                    .join(', ')}
-                </span>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs">
+                <a
+                  href={getMapUrl(
+                    stop.centerCoords.lat,
+                    stop.centerCoords.lng,
+                    stop.exactVenueName || stop.poiName
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="group/loc inline-flex items-center gap-1.5 text-stone-500 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-0.5 rounded"
+                  title="Open location in Maps application (Apple Maps / Google Maps)"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0 group-hover/loc:scale-110 transition-transform" />
+                  <span className="truncate border-b border-dashed border-stone-300 dark:border-stone-700 group-hover/loc:border-orange-500">
+                    {[stop.exactVenueName || stop.locationContext.neighborhood, stop.locationContext.city, stop.locationContext.country]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover/loc:opacity-100 shrink-0" />
+                </a>
               </div>
             </div>
           </div>

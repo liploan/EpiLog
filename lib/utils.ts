@@ -36,3 +36,11 @@ export function getAssetUrl(path: string): string {
   return `${prefix}${cleanPath}`;
 }
 
+export function getMapUrl(lat: number, lng: number, label?: string): string {
+  // Universal map URL that opens in native map app on mobile (Apple Maps/Google Maps) or browser
+  if (label) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(label)}+${lat},${lng}`;
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+}
+

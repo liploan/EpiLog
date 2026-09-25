@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { TravelStop } from '@/types/epilog';
-import { Layers, MapPin, ZoomIn, ZoomOut, Compass } from 'lucide-react';
+import { Layers, MapPin, ZoomIn, ZoomOut, Compass, Navigation, LocateFixed } from 'lucide-react';
+import { getMapUrl } from '@/lib/utils';
 
 interface MapCanvasProps {
   stops: TravelStop[];
@@ -23,22 +24,26 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
     style: {
       version: 8,
       sources: {
-        'esri-streets': {
+        'carto-voyager': {
           type: 'raster',
           tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
           ],
           tileSize: 256,
-          attribution: 'Esri, HERE, Garmin, USGS, NGA',
+          maxzoom: 20,
+          attribution: '© OpenStreetMap contributors, © CARTO',
         },
       },
       layers: [
         {
-          id: 'esri-streets-layer',
+          id: 'carto-voyager-layer',
           type: 'raster',
-          source: 'esri-streets',
+          source: 'carto-voyager',
           minzoom: 0,
-          maxzoom: 19,
+          maxzoom: 22,
         },
       ],
     },
@@ -48,47 +53,55 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
     style: {
       version: 8,
       sources: {
-        'esri-dark': {
+        'carto-dark': {
           type: 'raster',
           tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
           ],
           tileSize: 256,
-          attribution: 'Esri, Garmin, HERE, © OpenStreetMap',
+          maxzoom: 20,
+          attribution: '© OpenStreetMap contributors, © CARTO',
         },
       },
       layers: [
         {
-          id: 'esri-dark-layer',
+          id: 'carto-dark-layer',
           type: 'raster',
-          source: 'esri-dark',
+          source: 'carto-dark',
           minzoom: 0,
-          maxzoom: 18,
+          maxzoom: 22,
         },
       ],
     },
   },
   positron: {
-    name: 'Minimal Gray',
+    name: 'Minimal Light',
     style: {
       version: 8,
       sources: {
-        'esri-light': {
+        'carto-light': {
           type: 'raster',
           tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            'https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
           ],
           tileSize: 256,
-          attribution: 'Esri, Garmin, HERE, © OpenStreetMap',
+          maxzoom: 20,
+          attribution: '© OpenStreetMap contributors, © CARTO',
         },
       },
       layers: [
         {
-          id: 'esri-light-layer',
+          id: 'carto-light-layer',
           type: 'raster',
-          source: 'esri-light',
+          source: 'carto-light',
           minzoom: 0,
-          maxzoom: 18,
+          maxzoom: 22,
         },
       ],
     },
@@ -104,7 +117,8 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           ],
           tileSize: 256,
-          attribution: 'Esri, Maxar, Earthstar Geographics',
+          maxzoom: 19,
+          attribution: '© Esri, Maxar, Earthstar Geographics',
         },
       },
       layers: [
@@ -113,7 +127,7 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
           type: 'raster',
           source: 'esri-sat',
           minzoom: 0,
-          maxzoom: 19,
+          maxzoom: 22,
         },
       ],
     },
@@ -131,8 +145,10 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLDivElement }>>(new Map());
+  const hasInitialFitted = useRef(false);
   const [activeStyle, setActiveStyle] = useState<MapStyleKey>('voyager');
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
+  const [autoPanEnabled, setAutoPanEnabled] = useState(true);
 
   // Initialize Map
   useEffect(() => {
@@ -146,8 +162,10 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       container: mapContainer.current,
       style: MAP_STYLES[activeStyle].style,
       center: initialCenter,
-      zoom: 12,
-      pitch: 30,
+      zoom: 13,
+      pitch: 20,
+      maxZoom: 22,
+      minZoom: 2,
       attributionControl: false,
     });
 
@@ -157,7 +175,10 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       mapRef.current = map;
       updateRouteLayer(map, stops);
       updateMarkers(map, stops);
-      fitToStops(map, stops);
+      if (!hasInitialFitted.current && stops.length > 0) {
+        fitToStops(map, stops);
+        hasInitialFitted.current = true;
+      }
     });
 
     return () => {
@@ -275,16 +296,26 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       pulse.className = 'absolute -inset-1.5 rounded-full bg-orange-500/30 -z-10 hidden pulse-ring-el';
       el.appendChild(pulse);
 
-      // Tooltip preview
+      // Tooltip preview with direct Map link
+      const mapUrl = getMapUrl(
+        stop.centerCoords.lat,
+        stop.centerCoords.lng,
+        stop.exactVenueName || stop.poiName
+      );
+
       const popup = new maplibregl.Popup({
         offset: 20,
         closeButton: false,
         closeOnClick: false,
         className: 'epilog-pin-popup',
       }).setHTML(
-        `<div class="p-2 max-w-[200px] text-xs">
+        `<div class="p-2.5 max-w-[220px] text-xs space-y-1.5">
           <div class="font-bold text-gray-900 truncate">Stop ${stop.stopIndex}: ${stop.poiName}</div>
           <div class="text-gray-500 text-[11px]">${stop.photos.length} photos &bull; ${stop.reflection.category}</div>
+          <div class="pt-1.5 border-t border-gray-200/80 flex items-center justify-between">
+            <span class="text-[10px] text-gray-400 font-mono">${stop.centerCoords.lat.toFixed(4)}, ${stop.centerCoords.lng.toFixed(4)}</span>
+            <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-orange-600 hover:text-orange-700 underline underline-offset-2 flex items-center gap-0.5" onclick="event.stopPropagation()">Open in Maps ↗</a>
+          </div>
         </div>`
       );
 
@@ -311,14 +342,14 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
     });
   };
 
-  // Fit bounds to all stops
+  // Fit bounds to all stops (called on user request or initial load)
   const fitToStops = (map: maplibregl.Map, currentStops: TravelStop[]) => {
     if (currentStops.length === 0) return;
     if (currentStops.length === 1) {
-      map.flyTo({
+      map.easeTo({
         center: [currentStops[0].centerCoords.lng, currentStops[0].centerCoords.lat],
         zoom: 14,
-        duration: 1200,
+        duration: 800,
       });
       return;
     }
@@ -328,16 +359,15 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
     map.fitBounds(bounds, {
       padding: { top: 70, bottom: 70, left: 70, right: 70 },
       maxZoom: 15,
-      duration: 1400,
+      duration: 800,
     });
   };
 
-  // Sync Stop changes
+  // Sync Stop changes without forcing disorienting zoom jumps
   useEffect(() => {
     if (!mapRef.current) return;
     updateRouteLayer(mapRef.current, stops);
     updateMarkers(mapRef.current, stops);
-    fitToStops(mapRef.current, stops);
   }, [stops]);
 
   // Sync Active / Hovered Markers
@@ -366,19 +396,18 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       }
     });
 
-    if (activeStopId && mapRef.current) {
+    // Smoothly pan to the selected stop without altering the user's chosen zoom level
+    if (activeStopId && mapRef.current && autoPanEnabled) {
       const target = stops.find((s) => s.id === activeStopId);
       if (target) {
-        mapRef.current.flyTo({
+        mapRef.current.easeTo({
           center: [target.centerCoords.lng, target.centerCoords.lat],
-          zoom: 14.5,
-          speed: 1.2,
-          curve: 1.4,
+          duration: 600,
           essential: true,
         });
       }
     }
-  }, [activeStopId, hoveredStopId, stops]);
+  }, [activeStopId, hoveredStopId, stops, autoPanEnabled]);
 
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
@@ -420,6 +449,19 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
       {/* Floating Controls */}
       <div className="absolute bottom-6 right-4 z-20 flex flex-col gap-2">
+        {/* Toggle Auto-Pan Tracking */}
+        <button
+          onClick={() => setAutoPanEnabled(!autoPanEnabled)}
+          className={`p-2.5 rounded-xl backdrop-blur-md shadow-lg border text-xs transition-all ${
+            autoPanEnabled
+              ? 'bg-orange-600 text-white border-orange-500 shadow-orange-600/20'
+              : 'bg-white/95 dark:bg-stone-900/95 border-stone-200/80 dark:border-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
+          }`}
+          title={autoPanEnabled ? 'Auto-pan camera enabled (click to lock camera)' : 'Auto-pan camera disabled (click to follow timeline)'}
+        >
+          <LocateFixed className="w-4 h-4" />
+        </button>
+
         <button
           onClick={() => mapRef.current?.zoomIn()}
           className="p-2.5 rounded-xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg border border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-stone-50 transition-all"
