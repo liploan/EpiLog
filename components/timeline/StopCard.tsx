@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TravelStop, PhotoAsset, ReflectionCategory } from '@/types/epilog';
-import { formatTime, formatDate } from '@/lib/utils';
+import { formatTime, formatDate, getAssetUrl } from '@/lib/utils';
 import {
   Sparkles,
   Share2,
@@ -160,12 +160,8 @@ export const StopCard: React.FC<StopCardProps> = ({
         <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 group/photo">
           {activePhoto?.previewUrl ? (
             <img
-              src={activePhoto.previewUrl}
+              src={getAssetUrl(activePhoto.previewUrl)}
               alt={stop.poiName}
-              onError={(e) => {
-                // Fallback to high-reliability Kyoto scenic image
-                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop';
-              }}
               className="w-full h-full object-cover transition-transform duration-500 group-hover/photo:scale-105"
             />
           ) : (
@@ -229,7 +225,7 @@ export const StopCard: React.FC<StopCardProps> = ({
                     : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
               >
-                <img src={photo.previewUrl} alt="" className="w-full h-full object-cover" />
+                <img src={getAssetUrl(photo.previewUrl)} alt="" className="w-full h-full object-cover" />
                 <span
                   className={`absolute top-0.5 right-0.5 w-2 h-2 rounded-full ${
                     photo.isAnchor ? 'bg-emerald-400' : 'bg-amber-400'

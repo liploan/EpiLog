@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { EpiLogTrip } from '@/types/epilog';
-import { formatDate, formatTime } from '@/lib/utils';
+import { formatDate, formatTime, getAssetUrl } from '@/lib/utils';
 import { toPng } from 'html-to-image';
 import {
   BookOpen,
@@ -118,12 +118,9 @@ export const BookMonographModal: React.FC<BookMonographModalProps> = ({
               <div className="my-auto w-full aspect-[4/3] rounded-lg overflow-hidden shadow-md border border-stone-300 bg-stone-200">
                 {heroPhoto?.previewUrl ? (
                   <img
-                    src={heroPhoto.previewUrl}
+                    src={getAssetUrl(heroPhoto.previewUrl)}
                     alt={currentStop.poiName}
                     crossOrigin="anonymous"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop';
-                    }}
                     className="w-full h-full object-cover"
                   />
                 ) : (

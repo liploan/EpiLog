@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TravelStop } from '@/types/epilog';
-import { formatDate, formatTime } from '@/lib/utils';
+import { formatDate, formatTime, getAssetUrl } from '@/lib/utils';
 import { MapPin, Compass, Sparkles, Landmark, Utensils, Trees, Globe2, Calendar } from 'lucide-react';
 
 export type CardTheme = 'editorial-dark' | 'magazine-light' | 'vintage-stamp' | 'sunset-terracotta';
@@ -129,12 +129,9 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
       }`}>
         {heroPhoto?.previewUrl ? (
           <img
-            src={heroPhoto.previewUrl}
+            src={getAssetUrl(heroPhoto.previewUrl)}
             alt={stop.poiName}
             crossOrigin="anonymous"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop';
-            }}
             className="w-full h-full object-cover"
           />
         ) : (

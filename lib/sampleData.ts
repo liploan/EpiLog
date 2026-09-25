@@ -25,28 +25,10 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-inari-1',
-          previewUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/fushimi_inari.jpg',
           timestamp: new Date('2024-11-14T08:35:10Z'),
           coords: { lat: 34.9671, lng: 135.7727 },
           cameraModel: 'iPhone 15 Pro (24mm f/1.78)',
-          isAnchor: true,
-        },
-        {
-          id: 'p-inari-2',
-          previewUrl: 'https://images.unsplash.com/photo-1558862107-d49ef2a04d72?q=80&w=1200&auto=format&fit=crop',
-          timestamp: new Date('2024-11-14T08:42:20Z'),
-          coords: { lat: 34.9671, lng: 135.7727 },
-          cameraModel: 'Sony A7 IV (85mm f/1.4 GM)',
-          isAnchor: false,
-          matchedAnchorId: 'p-inari-1',
-          timeDiffSeconds: 430,
-        },
-        {
-          id: 'p-inari-3',
-          previewUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop',
-          timestamp: new Date('2024-11-14T09:20:00Z'),
-          coords: { lat: 34.968, lng: 135.774 },
-          cameraModel: 'iPhone 15 Pro (13mm Ultra-wide)',
           isAnchor: true,
         },
       ],
@@ -80,7 +62,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-kiyo-1',
-          previewUrl: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/kiyomizu_dera.jpg',
           timestamp: new Date('2024-11-14T13:20:00Z'),
           coords: { lat: 34.9948, lng: 135.785 },
           cameraModel: 'iPhone 15 Pro (48mm f/1.78)',
@@ -88,7 +70,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-kiyo-2',
-          previewUrl: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/sannenzaka.jpg',
           timestamp: new Date('2024-11-14T13:22:15Z'),
           coords: { lat: 34.9948, lng: 135.785 },
           cameraModel: 'Leica Q3 (28mm Summilux)',
@@ -126,21 +108,11 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-arash-1',
-          previewUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/arashiyama_bamboo.jpg',
           timestamp: new Date('2024-11-15T09:15:00Z'),
           coords: { lat: 35.017, lng: 135.6713 },
           cameraModel: 'iPhone 15 Pro (24mm)',
           isAnchor: true,
-        },
-        {
-          id: 'p-arash-2',
-          previewUrl: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?q=80&w=1200&auto=format&fit=crop',
-          timestamp: new Date('2024-11-15T09:17:30Z'),
-          coords: { lat: 35.017, lng: 135.6713 },
-          cameraModel: 'Fujifilm X-T5 (35mm f/1.4)',
-          isAnchor: false,
-          matchedAnchorId: 'p-arash-1',
-          timeDiffSeconds: 150,
         },
       ],
       narrativeCaption:
@@ -172,7 +144,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-gold-1',
-          previewUrl: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/kinkakuji.jpg',
           timestamp: new Date('2024-11-15T14:35:00Z'),
           coords: { lat: 35.0394, lng: 135.7292 },
           cameraModel: 'iPhone 15 Pro (77mm 3x Telephoto)',
@@ -208,7 +180,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
       photos: [
         {
           id: 'p-ponto-1',
-          previewUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/kyoto_kaiseki.jpg',
           timestamp: new Date('2024-11-16T18:15:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'Sony A7 IV (35mm f/1.4 GM)',
@@ -218,7 +190,7 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-ponto-2',
-          previewUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/omakase_sushi.jpg',
           timestamp: new Date('2024-11-16T18:16:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
           cameraModel: 'iPhone 15 Pro (24mm Night Mode)',
@@ -226,10 +198,10 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         },
         {
           id: 'p-ponto-3',
-          previewUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=1200&auto=format&fit=crop',
+          previewUrl: '/sample/pontocho_alley.jpg',
           timestamp: new Date('2024-11-16T19:05:00Z'),
           coords: { lat: 35.0062, lng: 135.7709 },
-          cameraModel: 'iPhone 15 Pro (48mm Macro Mode)',
+          cameraModel: 'iPhone 15 Pro (48mm Night Mode)',
           isAnchor: true,
         },
       ],
@@ -251,25 +223,20 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         {
           name: 'Kyoto Autumn Kaiseki Tasting Course',
           cuisineOrOrigin: 'Traditional Kyo-ryori',
-          description: 'A multi-course tasting highlighting charcoal-seared Kamo duck, simmered seasonal bamboo shoots, and fresh yuba in delicate matsutake dashi.',
-          ingredients: ['Kamo Duck', 'Fresh Yuba (Tofu Skin)', 'Matsutake Dashi', 'Sansho Pepper'],
+          description: 'A multi-course tasting highlighting charcoal-seared Kamo duck with ginkgo leaf, fresh seasonal maguro sashimi, simmered matsutake mushrooms, and delicate yuba tofu skin.',
+          ingredients: ['Kamo Duck', 'Fresh Yuba (Tofu Skin)', 'Matsutake Dashi', 'Sansho Pepper', 'Maguro Sashimi'],
           pairingOrNotes: 'Paired with chilled Fushimi Junmai Daiginjo sake',
         },
         {
           name: 'Edomae Omakase Nigiri Selection',
           cuisineOrOrigin: 'Artisanal Nigiri',
-          description: 'Line-caught Hon-Maguro bluefin otoro and shima-aji cured over red akazu seasoned vinegared rice with freshly grated Shizuoka wasabi.',
-          ingredients: ['Otoro Bluefin Tuna', 'Akazu Sushi Rice', 'Fresh Wasabi', 'Shima-Aji'],
+          description: 'Line-caught Hon-Maguro bluefin otoro, shima-aji with ginger scallion, and fresh Hokkaido uni sea urchin brushed with nikiri shoyu glaze.',
+          ingredients: ['Otoro Bluefin Tuna', 'Hokkaido Uni', 'Akazu Sushi Rice', 'Fresh Wasabi', 'Shima-Aji'],
           pairingOrNotes: 'Served with warm sencha green tea',
-        },
-        {
-          name: 'Artisanal Hakata Tonkotsu & Dashi Ramen',
-          cuisineOrOrigin: 'Kyoto Noodle Craft',
-          description: 'Hand-pulled wheat noodles steeped in a rich 18-hour broth, topped with braised chashu pork belly, ajitsuke tamago, and fragrant black garlic oil.',
-          ingredients: ['Braised Pork Belly', 'Ramen Noodles', 'Ajitsuke Egg', 'Nori', 'Black Garlic Mayu'],
         },
       ],
     },
   ],
 };
+
 

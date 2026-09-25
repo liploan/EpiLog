@@ -24,3 +24,15 @@ export function formatDateRange(start: Date | string, end: Date | string): strin
   }
   return `${formatDate(s)} – ${formatDate(e)}`;
 }
+
+export function getAssetUrl(path: string): string {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  // Handle GitHub Pages prefix in static export
+  const prefix = typeof window !== 'undefined' && window.location.pathname.startsWith('/EpiLog') ? '/EpiLog' : '';
+  return `${prefix}${cleanPath}`;
+}
+
