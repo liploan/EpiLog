@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <div>
                   <div className="font-semibold">🇪🇸 Barcelona Modernisme</div>
-                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">4 stops &bull; Gaudí &amp; Tapas</div>
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">6 stops &bull; Gaudí, Tapas &amp; Port Vell</div>
                 </div>
                 {currentTripId === 'trip-barcelona-2024' && <span className="w-2 h-2 rounded-full bg-orange-600" />}
               </button>

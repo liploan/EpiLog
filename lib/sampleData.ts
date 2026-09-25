@@ -246,7 +246,7 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
     start: new Date('2024-05-18T09:00:00Z'),
     end: new Date('2024-05-20T21:00:00Z'),
   },
-  totalDistanceKm: 18.4,
+  totalDistanceKm: 21.6,
   stops: [
     {
       id: 'stop-sagrada-familia',
@@ -364,12 +364,67 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       resolvedPrecisionMeters: 1.0,
     },
     {
-      id: 'stop-barri-gotic',
+      id: 'stop-bar-pinotxo',
       stopIndex: 4,
+      startTime: new Date('2024-05-19T13:00:00Z'),
+      endTime: new Date('2024-05-19T14:45:00Z'),
+      centerCoords: { lat: 41.3817, lng: 2.1716, altitude: 12 },
+      poiName: 'Bar Restaurant Pinotxo (Mercat de la Boqueria)',
+      locationContext: {
+        neighborhood: 'El Raval / La Rambla',
+        city: 'Barcelona',
+        country: 'Spain',
+      },
+      heroPhotoId: 'p-pinotxo-1',
+      photos: [
+        {
+          id: 'p-pinotxo-1',
+          previewUrl: '/sample/barcelona/bar_pinotxo.jpg',
+          timestamp: new Date('2024-05-19T13:15:00Z'),
+          coords: { lat: 41.3817, lng: 2.1716 },
+          cameraModel: 'Sony A7R V (35mm f/1.4 GM)',
+          isAnchor: true,
+        },
+      ],
+      narrativeCaption:
+        'Squeezing onto the polished counter at legendary Bar Pinotxo, the aroma of sizzling baby squid and savory botifarra chickpeas filled the buzzing Boqueria market air.',
+      reflection: {
+        category: 'Culinary',
+        takeawayText:
+          'Pioneered the art of "tapeo de mercado" (market counter dining) under the late Juanito Bayén for over 80 years, celebrating pure seasonal market ingredients cooked fresh on the plancha with zero pretension.',
+        userNotes: 'Order the famous warm chickpeas with black sausage and ask for a chilled glass of Catalan Cava.',
+      },
+      worldOnThisDay: {
+        dateStr: 'March 19',
+        headline: '1840: Official foundation stone laid for the historic Mercat de Sant Josep (La Boqueria) on the grounds of the former Saint Joseph convent.',
+        sourceUrl: 'https://en.wikipedia.org/wiki/La_Boqueria',
+      },
+      exactVenueName: 'Bar Pinotxo (Mercat de la Boqueria)',
+      resolvedPrecisionMeters: 1.0,
+      detectedDishes: [
+        {
+          name: 'Cigrons amb Botifarra Negra',
+          cuisineOrOrigin: 'Catalan Market Gastronomy',
+          description: 'Tender baby chickpeas sautéed with rich Catalan botifarra black blood sausage, sweet caramelized sofrito onions, and toasted pine nuts.',
+          ingredients: ['Baby Chickpeas (Cigrons)', 'Botifarra Negra (Catalan Blood Sausage)', 'Caramelized Onion', 'Pine Nuts', 'Olive Oil'],
+          pairingOrNotes: 'Signature dish of Bar Pinotxo, best paired with a flute of cold Cava',
+        },
+        {
+          name: 'Chipirones con Judías de Santa Pau',
+          cuisineOrOrigin: 'Catalan Seafood Plancha',
+          description: 'Baby squid seared on the sizzling plancha tossed over miniature buttery Santa Pau white beans with fresh garlic and parsley-infused olive oil.',
+          ingredients: ['Chipirones (Baby Squid)', 'Judías de Santa Pau (PDO White Beans)', 'Garlic', 'Flat-leaf Parsley', 'Sea Salt'],
+          pairingOrNotes: 'Served sizzling hot straight from the market plancha',
+        },
+      ],
+    },
+    {
+      id: 'stop-barri-gotic',
+      stopIndex: 5,
       startTime: new Date('2024-05-19T18:00:00Z'),
       endTime: new Date('2024-05-19T21:30:00Z'),
       centerCoords: { lat: 41.384, lng: 2.1762, altitude: 14 },
-      poiName: 'Barri Gòtic & El Born Catalan Gastronomy',
+      poiName: 'Barri Gòtic & Pont del Bisbe',
       locationContext: {
         neighborhood: 'Ciutat Vella',
         city: 'Barcelona',
@@ -387,18 +442,18 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
         },
       ],
       narrativeCaption:
-        'Twilight descended upon the narrow medieval cobblestone passages as warm amber streetlamps illuminated the Pont del Bisbe and lively tapas taverns.',
+        'Twilight descended upon the narrow medieval cobblestone passages as warm amber streetlamps illuminated the Pont del Bisbe and quiet stone alleyways.',
       reflection: {
-        category: 'Culinary',
+        category: 'Cultural',
         takeawayText:
-          'The Barri Gòtic stands upon the 2,000-year-old Roman colony of Barcino, where modern pintxos and Catalan tapas traditions thrive within ancient stone walls.',
+          'The Barri Gòtic stands upon the 2,000-year-old Roman colony of Barcino, where modern stone pavers still follow the ancient decumanus maximus axis beneath medieval gothic arches.',
       },
       worldOnThisDay: {
         dateStr: 'December 14',
         headline: '1990: Historic gothic quarters and Roman foundations of Barcelona received expanded European cultural heritage status.',
         sourceUrl: 'https://en.wikipedia.org/wiki/Gothic_Quarter,_Barcelona',
       },
-      exactVenueName: 'Pont del Bisbe & Tapeo del Born',
+      exactVenueName: 'Pont del Bisbe (Bishop’s Bridge)',
       resolvedPrecisionMeters: 1.0,
       detectedDishes: [
         {
@@ -409,6 +464,45 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
           pairingOrNotes: 'Paired with chilled Brut Nature Reserva Cava from Penedès',
         },
       ],
+    },
+    {
+      id: 'stop-columbus-monument',
+      stopIndex: 6,
+      startTime: new Date('2024-05-20T10:30:00Z'),
+      endTime: new Date('2024-05-20T12:45:00Z'),
+      centerCoords: { lat: 41.3758, lng: 2.1778, altitude: 60 },
+      poiName: 'Columbus Monument (Mirador de Colom & Port Vell)',
+      locationContext: {
+        neighborhood: 'Port Vell / Ciutat Vella',
+        city: 'Barcelona',
+        country: 'Spain',
+      },
+      heroPhotoId: 'p-colom-1',
+      photos: [
+        {
+          id: 'p-colom-1',
+          previewUrl: '/sample/barcelona/columbus_monument.jpg',
+          timestamp: new Date('2024-05-20T11:00:00Z'),
+          coords: { lat: 41.3758, lng: 2.1778 },
+          cameraModel: 'iPhone 15 Pro (24mm f/1.78)',
+          isAnchor: true,
+        },
+      ],
+      narrativeCaption:
+        'At the southern foot of La Rambla, the 60-meter iron column rises against the Mediterranean sky as Columbus points with outstretched arm toward the open sea.',
+      reflection: {
+        category: 'Cultural',
+        takeawayText:
+          'The Fascinating Orientation Mystery: While most visitors assume Columbus points toward America, the New World actually lies directly West-Southwest across mainland Spain! Instead, he points South-Southeast (~170° SSE) straight into the Mediterranean toward North Africa and his sea route out toward the Strait of Gibraltar. Sculptor Rafael Atché deliberately chose this seaward gaze so the monument would welcome the maritime harbor rather than awkwardly pointing inland back into the city.',
+        userNotes: 'Take the internal elevator up the column to the panoramic observation deck under Columbus’s feet for 360-degree views of Port Vell and Montjuïc.',
+      },
+      worldOnThisDay: {
+        dateStr: 'April 3',
+        headline: '1493: Christopher Columbus was formally received in Barcelona by Catholic Monarchs Isabella I and Ferdinand II at the Saló del Tinell following his first transatlantic return.',
+        sourceUrl: 'https://en.wikipedia.org/wiki/Columbus_Monument,_Barcelona',
+      },
+      exactVenueName: 'Monument a Colom (Mirador de Colom)',
+      resolvedPrecisionMeters: 1.0,
     },
   ],
 };
