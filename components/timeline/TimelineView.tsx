@@ -27,6 +27,7 @@ interface TimelineViewProps {
   onSynthesizeAllStops: () => Promise<void>;
   onUpdateStop: (updated: TravelStop) => void;
   onOpenUploadModal: () => void;
+  onSelectSampleTrip?: (tripKey: 'kyoto' | 'barcelona') => void;
   synthesizingStopId: string | null;
   isSynthesizingAll: boolean;
 }
@@ -42,6 +43,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   onSynthesizeAllStops,
   onUpdateStop,
   onOpenUploadModal,
+  onSelectSampleTrip,
   synthesizingStopId,
   isSynthesizingAll,
 }) => {
@@ -67,7 +69,37 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   });
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="flex flex-col h-full overflow-y-auto px-4 sm:px-6 py-6 space-y-5">
+      {/* Sample Journeys Switcher Bar */}
+      {onSelectSampleTrip && (
+        <div className="p-1 rounded-2xl bg-stone-900 border border-stone-800 text-xs shadow-md">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onSelectSampleTrip('kyoto')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-bold transition-all ${
+                trip.id !== 'trip-barcelona-2024'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60'
+              }`}
+            >
+              <span>⛩️</span>
+              <span className="truncate">Kyoto (5 Stops)</span>
+            </button>
+            <button
+              onClick={() => onSelectSampleTrip('barcelona')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-bold transition-all ${
+                trip.id === 'trip-barcelona-2024'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60'
+              }`}
+            >
+              <span>🇪🇸</span>
+              <span className="truncate">Barcelona (6 Stops)</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Trip Header Banner */}
       <div className="p-6 rounded-3xl bg-gradient-to-br from-stone-900 to-stone-800 text-white shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

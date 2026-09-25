@@ -197,6 +197,7 @@ export default function EpiLogDashboard() {
             onSynthesizeAllStops={handleSynthesizeAllStops}
             onUpdateStop={handleUpdateStop}
             onOpenUploadModal={() => setIsUploadModalOpen(true)}
+            onSelectSampleTrip={handleLoadSampleTrip}
             synthesizingStopId={synthesizingStopId}
             isSynthesizingAll={isSynthesizingAll}
           />
