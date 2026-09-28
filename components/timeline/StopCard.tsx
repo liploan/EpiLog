@@ -326,7 +326,7 @@ export const StopCard: React.FC<StopCardProps> = ({
                 </span>
               </div>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
-                AI Vision
+                Menu Lookup &bull; ~1m
               </span>
             </div>
 
@@ -361,6 +361,117 @@ export const StopCard: React.FC<StopCardProps> = ({
                     </div>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fine Art, Museum Artifacts & Masterworks Card */}
+        {stop.detectedArtworks && stop.detectedArtworks.length > 0 && (
+          <div className="p-3.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-purple-800 dark:text-purple-300">
+                <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Fine Art &bull; Museum Catalog
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-200/60 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200">
+                Artifact &bull; ~1m
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {stop.detectedArtworks.map((art, idx) => (
+                <div key={idx} className="p-2.5 rounded-lg bg-white/80 dark:bg-stone-900/80 border border-purple-200/50 dark:border-purple-900/40 space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-stone-900 dark:text-purple-100">{art.title}</span>
+                    {art.creationYearOrPeriod && (
+                      <span className="text-[10px] text-purple-700 dark:text-purple-300/80 font-medium shrink-0">
+                        {art.creationYearOrPeriod}
+                      </span>
+                    )}
+                  </div>
+                  {art.artistOrCreator && (
+                    <p className="text-[11px] font-semibold text-purple-900 dark:text-purple-300">
+                      By {art.artistOrCreator} {art.mediumOrStyle ? `• ${art.mediumOrStyle}` : ''}
+                    </p>
+                  )}
+                  {art.description && (
+                    <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-snug">
+                      {art.description}
+                    </p>
+                  )}
+                  {art.significanceOrInsight && (
+                    <div className="text-[10.5px] text-purple-950 dark:text-purple-200/90 italic pt-0.5 border-t border-purple-100 dark:border-purple-900/50">
+                      ✨ {art.significanceOrInsight}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Architectural Features & Masonry Heritage Card */}
+        {stop.detectedArchitecture && stop.detectedArchitecture.length > 0 && (
+          <div className="p-3.5 rounded-xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-sky-800 dark:text-sky-300">
+                <Landmark className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Architecture &bull; Structural Heritage
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-200/60 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200">
+                Sub-Meter Locale
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {stop.detectedArchitecture.map((arch, idx) => (
+                <div key={idx} className="p-2.5 rounded-lg bg-white/80 dark:bg-stone-900/80 border border-sky-200/50 dark:border-sky-900/40 space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-stone-900 dark:text-sky-100">{arch.elementName}</span>
+                    {arch.eraOrStyle && (
+                      <span className="text-[10px] text-sky-700 dark:text-sky-300/80 font-medium shrink-0">
+                        {arch.eraOrStyle}
+                      </span>
+                    )}
+                  </div>
+                  {arch.architectOrSchool && (
+                    <p className="text-[11px] font-medium text-sky-900 dark:text-sky-300">
+                      Master / Architect: {arch.architectOrSchool}
+                    </p>
+                  )}
+                  {arch.description && (
+                    <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-snug">
+                      {arch.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Layer 2: Micro-Establishments Breakdown */}
+        {stop.microEstablishments && stop.microEstablishments.length > 1 && (
+          <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800/80 space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+              <span>Layer 2 &bull; Micro-Establishments Visited (~1m accuracy)</span>
+              <span>{stop.microEstablishments.length} Locales</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {stop.microEstablishments.map((micro, mIdx) => (
+                <span
+                  key={mIdx}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10.5px] font-medium"
+                >
+                  <MapPin className="w-2.5 h-2.5 text-orange-500" />
+                  <span>{micro.name}</span>
+                  <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold">±{micro.precisionMeters}m</span>
+                </span>
               ))}
             </div>
           </div>

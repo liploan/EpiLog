@@ -45,6 +45,30 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         headline: '1889: Pioneer investigative reporter Nellie Bly began her record-breaking 72-day journey around the world.',
         sourceUrl: 'https://en.wikipedia.org/wiki/Nellie_Bly',
       },
+      exactVenueName: 'Fushimi Inari-Taisha',
+      resolvedPrecisionMeters: 1.0,
+      detectedArchitecture: [
+        {
+          elementName: 'Senbon Torii (Thousand Torii Gate Arcade)',
+          architectOrSchool: 'Fushimi Shinto Guild Masons',
+          eraOrStyle: 'Traditional Japanese Shinto Shrine Architecture',
+          description: 'Dual winding tunnels of vermilion cinnabar-lacquered cedar torii gates dedicated to Inari Okami.',
+        },
+      ],
+      microEstablishments: [
+        {
+          name: 'Senbon Torii Lower Arcade',
+          type: 'shrine',
+          coords: { lat: 34.9671, lng: 135.7727 },
+          precisionMeters: 1.0,
+        },
+        {
+          name: 'Okusha Hohaisho Inner Shrine',
+          type: 'shrine',
+          coords: { lat: 34.9675, lng: 135.7732 },
+          precisionMeters: 1.0,
+        },
+      ],
     },
     {
       id: 'stop-kiyomizu-dera',
@@ -91,6 +115,30 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         headline: '1971: NASA Mariner 9 became the first spacecraft to enter orbit around Mars.',
         sourceUrl: 'https://en.wikipedia.org/wiki/Mariner_9',
       },
+      exactVenueName: 'Kiyomizu-dera Hondo (Main Hall)',
+      resolvedPrecisionMeters: 1.0,
+      detectedArchitecture: [
+        {
+          elementName: 'Floating Hondo Veranda (Kiyomizu Stage)',
+          architectOrSchool: 'Master Kigumi Timber Joiners',
+          eraOrStyle: 'Heian / Edo-period Kigumi Timber Framework',
+          description: '13-meter high timber veranda built over a steep cliffside using 139 giant zelkova pillars without nails.',
+        },
+      ],
+      microEstablishments: [
+        {
+          name: 'Kiyomizu-dera Main Stage',
+          type: 'temple',
+          coords: { lat: 34.9948, lng: 135.785 },
+          precisionMeters: 1.0,
+        },
+        {
+          name: 'Sannenzaka Stone Slope & Tea Houses',
+          type: 'historic_street',
+          coords: { lat: 34.9962, lng: 135.7825 },
+          precisionMeters: 1.0,
+        },
+      ],
     },
     {
       id: 'stop-arashiyama-bamboo',
@@ -127,6 +175,22 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         headline: '1920: The League of Nations held its first general assembly in Geneva.',
         sourceUrl: 'https://en.wikipedia.org/wiki/League_of_Nations',
       },
+      exactVenueName: 'Sagano Bamboo Forest Grove',
+      resolvedPrecisionMeters: 1.0,
+      microEstablishments: [
+        {
+          name: 'Sagano Bamboo Walking Path',
+          type: 'natural_reserve',
+          coords: { lat: 35.017, lng: 135.6713 },
+          precisionMeters: 1.0,
+        },
+        {
+          name: 'Tenryu-ji Sogenchi Zen Garden',
+          type: 'temple_garden',
+          coords: { lat: 35.0158, lng: 135.6775 },
+          precisionMeters: 1.0,
+        },
+      ],
     },
     {
       id: 'stop-kinkaku-ji',
@@ -163,6 +227,16 @@ export const SAMPLE_KYOTO_TRIP: EpiLogTrip = {
         headline: '1971: Intel released the 4004, the world’s first commercial single-chip microprocessor.',
         sourceUrl: 'https://en.wikipedia.org/wiki/Intel_4004',
       },
+      exactVenueName: 'Rokuon-ji (Kinkaku-ji Pavilion)',
+      resolvedPrecisionMeters: 1.0,
+      detectedArchitecture: [
+        {
+          elementName: 'Kinkaku-ji Three-Tier Gold Pavilion',
+          architectOrSchool: 'Ashikaga Yoshimitsu & Muromachi Zen Masters',
+          eraOrStyle: 'Muromachi Period (Kitayama Culture)',
+          description: 'Top two stories covered in pure 24-karat gold leaf, crowned by a bronze Chinese phoenix (Fenghuang).',
+        },
+      ],
     },
     {
       id: 'stop-pontocho-alley',
@@ -286,6 +360,38 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       },
       exactVenueName: 'Basílica de la Sagrada Família',
       resolvedPrecisionMeters: 1.0,
+      detectedArchitecture: [
+        {
+          elementName: 'Hyperboloid Forest Nave & Branching Stone Columns',
+          architectOrSchool: 'Antoni Gaudí',
+          eraOrStyle: 'Catalan Modernisme / Organic Structuralism',
+          description: 'Double-twist porphyry and basalt stone tree columns branching to hold hyperboloid vault canopies.',
+        },
+      ],
+      detectedArtworks: [
+        {
+          title: 'Nativity Facade Sculptural Triptych & Tree of Life',
+          artistOrCreator: 'Antoni Gaudí & Llorenç Matamala',
+          creationYearOrPeriod: '1894–1930',
+          mediumOrStyle: 'Montjuïc sandstone relief sculpture',
+          museumOrLocationName: 'Eastern Facade, Sagrada Família',
+          significanceOrInsight: 'Directly sculpted from live plaster casts of local Barcelona citizens and animals to capture raw humanity and biological fidelity.',
+        },
+      ],
+      microEstablishments: [
+        {
+          name: 'Sagrada Família Central Nave',
+          type: 'basilica',
+          coords: { lat: 41.4036, lng: 2.1744 },
+          precisionMeters: 1.0,
+        },
+        {
+          name: 'Nativity Facade Portal',
+          type: 'monument',
+          coords: { lat: 41.4038, lng: 2.1751 },
+          precisionMeters: 1.0,
+        },
+      ],
     },
     {
       id: 'stop-park-guell',
@@ -324,6 +430,24 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       },
       exactVenueName: 'Park Güell',
       resolvedPrecisionMeters: 1.0,
+      detectedArtworks: [
+        {
+          title: 'El Drac (The Salamander Fountain) & Serpentine Trencadís Bench',
+          artistOrCreator: 'Antoni Gaudí & Josep Maria Jujol',
+          creationYearOrPeriod: '1900–1914',
+          mediumOrStyle: 'Glazed ceramic tile trencadís mosaic',
+          museumOrLocationName: 'Monumental Zone Staircase & Hypostyle Terrace',
+          significanceOrInsight: 'Masterpiece of proto-surrealist mosaic recycled from broken cups and tile discards from local kilns.',
+        },
+      ],
+      detectedArchitecture: [
+        {
+          elementName: 'Hypostyle Room & 86 Doric Columns',
+          architectOrSchool: 'Antoni Gaudí',
+          eraOrStyle: 'Modernisme Classical Synthesis',
+          description: 'Supported stone terrace housing subterranean rainwater cistern system with ceramic rosette vaults.',
+        },
+      ],
     },
     {
       id: 'stop-casa-batllo',
@@ -362,6 +486,24 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       },
       exactVenueName: 'Casa Batlló',
       resolvedPrecisionMeters: 1.0,
+      detectedArtworks: [
+        {
+          title: 'Noble Floor Stained Glass & Swirling Spiral Ceiling',
+          artistOrCreator: 'Antoni Gaudí & Josep Pelegrí',
+          creationYearOrPeriod: '1904–1906',
+          mediumOrStyle: 'Lead-framed stained glass and sculpted plaster',
+          museumOrLocationName: 'Main Salon, Casa Batlló',
+          significanceOrInsight: 'Subaqueous light effect recreating underwater marine caverns and nautilus shells.',
+        },
+      ],
+      detectedArchitecture: [
+        {
+          elementName: 'Dragon Back Ceramic Roof & Bone Balconies',
+          architectOrSchool: 'Antoni Gaudí',
+          eraOrStyle: 'Catalan Modernisme',
+          description: 'Iridescent glazed tile roof simulating the scales of the dragon of Sant Jordi, punctured by a cross-shaped lance turret.',
+        },
+      ],
     },
     {
       id: 'stop-bar-pinotxo',
@@ -417,6 +559,20 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
           pairingOrNotes: 'Served sizzling hot straight from the market plancha',
         },
       ],
+      microEstablishments: [
+        {
+          name: 'Bar Pinotxo Counter (Stalls 66-67)',
+          type: 'tapas_bar',
+          coords: { lat: 41.3817, lng: 2.1716 },
+          precisionMeters: 1.0,
+        },
+        {
+          name: 'Mercat de la Boqueria Fruit & Spice Aisle',
+          type: 'market',
+          coords: { lat: 41.3818, lng: 2.1714 },
+          precisionMeters: 1.0,
+        },
+      ],
     },
     {
       id: 'stop-barri-gotic',
@@ -455,6 +611,14 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       },
       exactVenueName: 'Pont del Bisbe (Bishop’s Bridge)',
       resolvedPrecisionMeters: 1.0,
+      detectedArchitecture: [
+        {
+          elementName: 'Pont del Bisbe (Bishop’s Bridge Neo-Gothic Arch)',
+          architectOrSchool: 'Joan Rubió i Bellver',
+          eraOrStyle: 'Flamoyant Neo-Gothic (Built 1928)',
+          description: 'Intricately carved covered bridge connecting the Palau de la Generalitat with the Casa dels Canonges, featuring a hidden skull and dagger on its underside.',
+        },
+      ],
       detectedDishes: [
         {
           name: 'Jamón Ibérico de Bellota con Pa amb Tomàquet',
@@ -503,6 +667,24 @@ export const SAMPLE_BARCELONA_TRIP: EpiLogTrip = {
       },
       exactVenueName: 'Monument a Colom (Mirador de Colom)',
       resolvedPrecisionMeters: 1.0,
+      detectedArtworks: [
+        {
+          title: 'Statue of Christopher Columbus & Bronze Relief Friezes',
+          artistOrCreator: 'Rafael Atché (sculptor) & Gaietà Buïgas (architect)',
+          creationYearOrPeriod: '1888',
+          mediumOrStyle: 'Gilded bronze statue and cast-iron Corinthian column',
+          museumOrLocationName: 'Plaça del Portal de la Pau',
+          significanceOrInsight: '7.2-meter bronze colossus holding a nautical chart, cast for the 1888 Barcelona Universal Exposition.',
+        },
+      ],
+      detectedArchitecture: [
+        {
+          elementName: '60-Meter Iron Corinthian Monumental Column',
+          architectOrSchool: 'Gaietà Buïgas i Monravà',
+          eraOrStyle: '19th Century Historicist Ironwork',
+          description: 'Octagonal stone plinth flanked by four bronze winged victories and eight historical medallion reliefs.',
+        },
+      ],
     },
   ],
 };

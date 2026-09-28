@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ReflectionCategory, GeoCoordinate, CulinaryDish } from '@/types/epilog';
+import { ReflectionCategory, GeoCoordinate, CulinaryDish, ArtworkArtifact, ArchitecturalFeature } from '@/types/epilog';
 import { queryCorridorVenues, matchVenueFromCandidates, VenueCandidate } from './poiResolver';
 
 export interface SynthesizeParams {
@@ -30,13 +30,15 @@ export interface SynthesizeResult {
   venueCandidates?: VenueCandidate[];
   resolvedPrecisionMeters?: number;
   detectedDishes?: CulinaryDish[];
+  detectedArtworks?: ArtworkArtifact[];
+  detectedArchitecture?: ArchitecturalFeature[];
   error?: string;
 }
 
 /**
  * Synthesizes scene narrative caption, takeaway reflection, sub-meter POI resolution,
- * and automatic dish/gastronomy identification using client-side Gemini Vision
- * (Fully compatible with static GitHub Pages hosting - zero backend server required)
+ * automatic dish/menu identification, and museum artwork/architecture cataloging
+ * using client-side Gemini Vision.
  */
 export async function synthesizeSceneWithGemini(
   params: SynthesizeParams
@@ -77,7 +79,7 @@ export async function synthesizeSceneWithGemini(
       isMock: true,
       exactVenue: topCandidate,
       venueCandidates: candidates.slice(0, 8),
-      resolvedPrecisionMeters: topCandidate ? 1.5 : undefined,
+      resolvedPrecisionMeters: topCandidate ? 1.0 : undefined,
     };
   }
 
@@ -89,36 +91,59 @@ export async function synthesizeSceneWithGemini(
       ? `\nNearby Known Venues along this street corridor: [${candidates.map((c) => `"${c.name}" (${c.type})`).slice(0, 15).join(', ')}]`
       : '';
 
-    const prompt = `You are EpiLog's travel intelligence synthesizer, culinary gastronomy analyzer, and sub-meter precision spatial matcher.
+    const prompt = `You are EpiLog's travel intelligence synthesizer, museum artwork cataloger, gastronomy expert, and sub-meter precision spatial matcher.
 Analyze this travel stop, its photo, and its location context:
 Location: ${locationContextStr || 'Unknown location'}
 ${params.existingReflection?.userNotes ? `User notes: "${params.existingReflection.userNotes}"` : ''}
 ${candidateNamesStr}
 
-Please perform the following visual analyses on the image:
-1. STOREFRONT & SIGNAGE: Look for restaurant/bar/cafe signs, chalkboard menus, plaques, or monument names.
-2. DISH IDENTIFICATION: If food, plates, tapas, wine, or beverages are present, identify the specific dish name(s) (e.g. "Jamón Ibérico de Bellota", "Paella de Marisco", "Churros con Chocolate", "Salmorejo Cordobés", "Tortilla Española", "Croquetas de Jamón", "Matcha & Wagashi Course"), the regional cuisine style, key ingredients, and a short 1-sentence appetizing description.
-3. SCENE SYNTHESIS: Provide an evocative editorial caption and a "What I Learned" takeaway insight. If dishes are clearly present, set "category" to "Culinary".
+Please perform the following visual and context analyses on the image:
+1. STOREFRONT & SIGNAGE (Micro ~1m accuracy): Look for restaurant/bar/cafe signs, chalkboard menus, plaques, theater marquees, or museum/monument names.
+2. DISH & MENU LOOKUP: If food, plates, tapas, wine, coffee, or beverages are present, match them against the establishment's known menu and regional specialties. Identify the specific dish name(s) (e.g. "Xuixo de Crema", "Garbanzos con Morcilla", "Jamón Ibérico de Bellota", "Paella de Marisco", "Cochinillo Asado"), regional cuisine style, key ingredients, appetizing 1-sentence description, and pairing notes.
+3. ARTWORK & MUSEUM CATALOGING: If inside a museum, gallery, church, or cultural venue and an artwork, painting, sculpture, or relic is visible, identify the specific artwork title, artist/creator, creation period/year, medium/style (e.g. "Oil on canvas", "Gothic polychrome wood", "Catalan Modernisme mosaic"), and historical significance.
+4. ARCHITECTURE & MONUMENT DETAILS: If an architectural facade, monument, cloister, or historic tower is featured, identify the architectural element, architect/school (e.g. "Antoni Gaudí", "Juan de Álava", "Mudéjar craftsman"), era/style, and structural description.
+5. EDITORIAL SYNTHESIS: Provide an evocative 1-2 sentence narrative caption and a "What I Learned" takeaway insight. Categorize accurately into "Architectural", "Culinary", "Natural", or "Cultural".
 
-Generate an editorial, evocative travel log entry adhering strictly to this JSON format:
+Generate an editorial travel log entry adhering strictly to this JSON format:
 {
-  "narrativeCaption": "1-2 evocative sentences summarizing the scene mood, atmosphere, and visual essence (like a National Geographic or Monocle travel journal).",
+  "narrativeCaption": "1-2 evocative sentences summarizing the scene mood, atmosphere, and visual essence.",
   "category": "Architectural" | "Culinary" | "Natural" | "Cultural",
   "takeawayText": "A 1-2 sentence 'What I Learned' insight explaining a cultural, culinary, architectural, or historical truth about this place.",
-  "detectedVenueName": "The specific restaurant, cafe, bar, museum, or landmark name visible in the image or signs, or null if no specific name is visible",
-  "detectedAddress": "Street name or number visible in the photo (if any), or null",
+  "detectedVenueName": "The specific restaurant, cafe, bar, museum, or landmark name visible in the image or corridor, or null",
+  "detectedAddress": "Street address or plaza name (if discernible), or null",
   "detectedDishes": [
     {
-      "name": "Specific dish or beverage name",
-      "cuisineOrOrigin": "Regional cuisine style (e.g. Spanish Castilian, Tapas, Andalusian, Kyoto Kaiseki)",
-      "description": "1-sentence sensory culinary description highlighting preparation, flavor profile, or presentation",
-      "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
-      "pairingOrNotes": "Optional drink pairing or gastronomic tradition (e.g. Paired with Ribera del Duero red wine)"
+      "name": "Specific dish or beverage name from restaurant menu",
+      "cuisineOrOrigin": "Regional cuisine style",
+      "description": "1-sentence sensory culinary description highlighting preparation and flavors",
+      "ingredients": ["Ingredient 1", "Ingredient 2"],
+      "pairingOrNotes": "Drink pairing or culinary tradition"
+    }
+  ],
+  "detectedArtworks": [
+    {
+      "title": "Title of the painting, sculpture, or art piece",
+      "artistOrCreator": "Artist or workshop name",
+      "creationYearOrPeriod": "e.g. 1656 or Late 19th Century",
+      "mediumOrStyle": "e.g. Oil on canvas / Marble / Stained glass",
+      "description": "Visual and compositional description",
+      "museumOrLocationName": "Name of the museum or hall",
+      "significanceOrInsight": "Why this piece is historically or artistically renowned"
+    }
+  ],
+  "detectedArchitecture": [
+    {
+      "elementName": "Specific facade, portal, dome, arch, or cloister",
+      "architectOrSchool": "Architect, master mason, or school",
+      "eraOrStyle": "e.g. Catalan Modernisme / Plateresque / Mudéjar / Romanesque",
+      "description": "Architectural masonry or stylistic detail"
     }
   ]
 }
 
-If no food or dishes are visible in the image, return "detectedDishes": [].
+If no food is present, return "detectedDishes": [].
+If no specific museum artwork is present, return "detectedArtworks": [].
+If no notable architectural element is present, return "detectedArchitecture": [].
 Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
 
     const parts: any[] = [prompt];
@@ -162,10 +187,22 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
       ? parsed.detectedDishes.filter((d: any) => d && d.name)
       : [];
 
-    // If dishes were detected, ensure category is Culinary if not explicitly overridden
+    const artworks: ArtworkArtifact[] = Array.isArray(parsed.detectedArtworks)
+      ? parsed.detectedArtworks.filter((a: any) => a && a.title)
+      : [];
+
+    const architecture: ArchitecturalFeature[] = Array.isArray(parsed.detectedArchitecture)
+      ? parsed.detectedArchitecture.filter((a: any) => a && a.elementName)
+      : [];
+
+    // Determine category based on richest detected artifact if not explicitly overridden
     let finalCategory = (parsed.category as ReflectionCategory) || currentCategory;
     if (dishes.length > 0 && currentCategory === 'Cultural') {
       finalCategory = 'Culinary';
+    } else if (artworks.length > 0 && currentCategory === 'Cultural') {
+      finalCategory = 'Cultural';
+    } else if (architecture.length > 0 && currentCategory === 'Cultural') {
+      finalCategory = 'Architectural';
     }
 
     return {
@@ -179,6 +216,8 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
       venueCandidates: candidates.slice(0, 8),
       resolvedPrecisionMeters: matchedVenue ? 1.0 : (candidates.length > 0 ? 3.0 : undefined),
       detectedDishes: dishes.length > 0 ? dishes : undefined,
+      detectedArtworks: artworks.length > 0 ? artworks : undefined,
+      detectedArchitecture: architecture.length > 0 ? architecture : undefined,
       isMock: false,
     };
   } catch (err: any) {

@@ -114,15 +114,55 @@ export function matchOrphansToAnchors(
 }
 
 export interface ClusterOptions {
-  maxTimeGapHours?: number; // default: 2 hours (7200 seconds)
-  maxDistanceMeters?: number; // default: 300 meters
+  maxTimeGapHours?: number; // Layer 1 default: 2 hours (7200 seconds)
+  maxDistanceMeters?: number; // Layer 1 default: 300 meters
+  microClusterDistanceMeters?: number; // Layer 2 default: 25 meters
 }
 
 /**
- * Spatiotemporal Clustering:
- * Clusters sorted geo-located photos into distinct TravelStops.
- * Photos are grouped together if consecutive photos are within maxTimeGapHours (2h)
- * AND within maxDistanceMeters (300m) of the active stop's centroid.
+ * Layer 2 Micro-Establishment Decomposition:
+ * Groups photos within a macro stop into distinct micro-establishments (radius <= 25m)
+ */
+export function decomposeStopIntoMicroEstablishments(
+  photos: PhotoAsset[],
+  maxMicroDistanceMeters: number = 25
+): {
+  centroid: GeoCoordinate;
+  photos: PhotoAsset[];
+}[] {
+  const geoPhotos = photos.filter((p) => p.coords !== null);
+  if (geoPhotos.length === 0) return [];
+
+  const microClusters: PhotoAsset[][] = [];
+  let currentGroup: PhotoAsset[] = [geoPhotos[0]];
+
+  for (let i = 1; i < geoPhotos.length; i++) {
+    const p = geoPhotos[i];
+    const groupCentroid = calculateCentroid(currentGroup.map((x) => x.coords!));
+    const dist = calculateHaversineDistance(groupCentroid, p.coords!);
+
+    if (dist <= maxMicroDistanceMeters) {
+      currentGroup.push(p);
+    } else {
+      microClusters.push(currentGroup);
+      currentGroup = [p];
+    }
+  }
+
+  if (currentGroup.length > 0) {
+    microClusters.push(currentGroup);
+  }
+
+  return microClusters.map((group) => ({
+    centroid: calculateCentroid(group.map((x) => x.coords!)),
+    photos: group,
+  }));
+}
+
+/**
+ * Two-Layer Spatiotemporal Clustering:
+ * Layer 1: Groups sorted geo-located photos into distinct TravelStops (bulk 300m / 2h filter).
+ * Layer 2: Decomposes each stop into sub-meter micro-establishments (<=25m radius).
  */
 export function clusterPhotosIntoStops(
   photos: PhotoAsset[],
@@ -130,6 +170,7 @@ export function clusterPhotosIntoStops(
 ): TravelStop[] {
   const maxTimeGapSec = (options.maxTimeGapHours ?? 2) * 3600;
   const maxDistanceMeters = options.maxDistanceMeters ?? 300;
+  const microDist = options.microClusterDistanceMeters ?? 25;
 
   // Filter photos that have valid coordinates (anchors and matched orphans)
   const geotaggedPhotos = photos
@@ -178,6 +219,16 @@ export function clusterPhotosIntoStops(
     // Pick hero photo (default to the first or highest-detail anchor)
     const hero = cluster.find((p) => p.isAnchor) || cluster[0];
 
+    // Layer 2: Decompose into micro-establishments
+    const microGroups = decomposeStopIntoMicroEstablishments(cluster, microDist);
+    const microEstablishments = microGroups.map((g, idx) => ({
+      name: `Establishment ${idx + 1}`,
+      type: 'venue',
+      coords: g.centroid,
+      precisionMeters: 1.0,
+      photoIds: g.photos.map((p) => p.id),
+    }));
+
     return {
       id: `stop-${index + 1}-${Date.now().toString(36)}`,
       stopIndex: index + 1,
@@ -196,6 +247,7 @@ export function clusterPhotosIntoStops(
         category: 'Cultural',
         takeawayText: '',
       },
+      microEstablishments: microEstablishments.length > 0 ? microEstablishments : undefined,
     };
   });
 

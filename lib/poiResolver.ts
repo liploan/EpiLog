@@ -37,11 +37,11 @@ export async function queryCorridorVenues(
   const query = `
 [out:json][timeout:10];
 (
-  node["amenity"~"restaurant|cafe|bar|pub|fast_food|ice_cream|marketplace"](${minLat},${minLng},${maxLat},${maxLng});
-  node["tourism"~"attraction|museum|viewpoint|hotel|gallery"](${minLat},${minLng},${maxLat},${maxLng});
-  node["historic"~"monument|castle|memorial|archaeological_site|ruins|church"](${minLat},${minLng},${maxLat},${maxLng});
-  way["amenity"~"restaurant|cafe|bar|pub|marketplace"](${minLat},${minLng},${maxLat},${maxLng});
-  way["tourism"~"attraction|museum"](${minLat},${minLng},${maxLat},${maxLng});
+  node["amenity"~"restaurant|cafe|bar|pub|fast_food|ice_cream|marketplace|theatre|cinema"](${minLat},${minLng},${maxLat},${maxLng});
+  node["tourism"~"attraction|museum|viewpoint|hotel|gallery|artwork|theme_park"](${minLat},${minLng},${maxLat},${maxLng});
+  node["historic"~"monument|castle|memorial|archaeological_site|ruins|church|city_gate|building"](${minLat},${minLng},${maxLat},${maxLng});
+  way["amenity"~"restaurant|cafe|bar|pub|marketplace|theatre"](${minLat},${minLng},${maxLat},${maxLng});
+  way["tourism"~"attraction|museum|gallery|artwork"](${minLat},${minLng},${maxLat},${maxLng});
   way["historic"](${minLat},${minLng},${maxLat},${maxLng});
 );
 out center 40;

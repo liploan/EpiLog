@@ -29,6 +29,32 @@ export interface CulinaryDish {
   pairingOrNotes?: string;
 }
 
+export interface ArtworkArtifact {
+  title: string;
+  artistOrCreator?: string;
+  creationYearOrPeriod?: string;
+  mediumOrStyle?: string;
+  description?: string;
+  museumOrLocationName?: string;
+  significanceOrInsight?: string;
+}
+
+export interface ArchitecturalFeature {
+  elementName: string;
+  architectOrSchool?: string;
+  eraOrStyle?: string;
+  description?: string;
+}
+
+export interface MicroEstablishment {
+  name: string;
+  type: string; // restaurant, cafe, bar, museum, gallery, theater, monument, landmark, etc.
+  coords: GeoCoordinate;
+  address?: string;
+  precisionMeters: number; // e.g. 1.0
+  photoIds?: string[];
+}
+
 export interface TravelStop {
   id: string;
   stopIndex: number;
@@ -63,7 +89,10 @@ export interface TravelStop {
     address?: string;
     distanceFromLatMeters?: number;
   }[];
+  microEstablishments?: MicroEstablishment[];
   detectedDishes?: CulinaryDish[];
+  detectedArtworks?: ArtworkArtifact[];
+  detectedArchitecture?: ArchitecturalFeature[];
 }
 
 export interface EpiLogTrip {
