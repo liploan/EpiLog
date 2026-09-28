@@ -34,7 +34,7 @@ Featuring the **Atelier Monograph** design system—a quiet luxury aesthetic ins
 
 ### 2. 🛰️ Spatiotemporal Sensor Fusion (DSLR + Phone Bridging)
 * **Temporal Indexing**: Automatically synchronizes all photo assets chronologically using EXIF `DateTimeOriginal` and subsecond shutter timestamps.
-* **Proximity GPS Bridging ($\pm 3\text{ min}$)**: Automatically matches GPS-less DSLR/mirrorless "orphan" photos to smartphone GPS "anchor" photos taken within temporal proximity.
+* **Proximity GPS Bridging (±3 min)**: Automatically matches GPS-less DSLR/mirrorless "orphan" photos to smartphone GPS "anchor" photos taken within temporal proximity.
 * **Hero Curation**: Selects prime high-resolution camera frames as hero imagery for each travel stop while inheriting accurate geographic coordinates.
 
 ### 3. 🎯 Sub-Meter Corridor Resolution & Micro-Establishments
@@ -116,17 +116,28 @@ To preserve original EXIF timestamps and embedded GPS telemetry when exporting y
 
 EpiLog groups discrete photos into meaningful travel stops using spatiotemporal clustering:
 
-1. **Centroid Computation**:
-   $$\text{Lat}_{\text{center}} = \frac{1}{N}\sum_{i=1}^N \text{Lat}_i, \quad \text{Lng}_{\text{center}} = \frac{1}{N}\sum_{i=1}^N \text{Lng}_i$$
+#### 1. Centroid Computation
 
-2. **Haversine Distance**:
-   $$d = 2R \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta\phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta\lambda}{2}\right)}\right)$$
-   where $R = 6371\text{ km}$.
+$$
+\text{Lat}_{\text{center}} = \frac{1}{N}\sum_{i=1}^N \text{Lat}_i, \qquad \text{Lng}_{\text{center}} = \frac{1}{N}\sum_{i=1}^N \text{Lng}_i
+$$
 
-3. **Clustering Thresholds**:
-   - $\Delta t \le 2\text{ hours}$ between consecutive exposures
-   - $\Delta d \le 300\text{ meters}$ radius from stop centroid
-   - $\Delta t_{\text{orphan}} \le 180\text{ seconds}$ for DSLR-to-phone anchor inheritance
+#### 2. Haversine Great-Circle Distance
+
+$$
+d = 2R \arcsin \left( \sqrt{\sin^2\left(\frac{\Delta\phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta\lambda}{2}\right)} \right)
+$$
+
+Where:
+* $\phi_1, \phi_2$ are latitudes in radians
+* $\Delta\lambda$ is the longitude difference in radians
+* $R = 6371\text{ km}$ (mean Earth radius)
+
+#### 3. Spatial & Temporal Clustering Thresholds
+
+* **Temporal Gap**: $\Delta t \le 2\text{ hours}$ between consecutive exposures
+* **Spatial Radius**: $\Delta d \le 300\text{ meters}$ radius from stop centroid
+* **DSLR Matching Window**: $\Delta t_{\text{orphan}} \le 180\text{ seconds}$ for phone-to-DSLR coordinate inheritance
 
 ---
 
