@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         {/* Preconnect to tile servers and APIs for instant map boot */}
         <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossOrigin="anonymous" />

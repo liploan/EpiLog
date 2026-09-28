@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Compass,
   UploadCloud,
@@ -13,6 +13,8 @@ import {
   ChevronDown,
   Globe,
   Feather,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -35,6 +37,30 @@ export const Header: React.FC<HeaderProps> = ({
   onSetMobileTab,
 }) => {
   const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('epilog_theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = !isDarkMode;
+    setIsDarkMode(nextTheme);
+    if (nextTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('epilog_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('epilog_theme', 'light');
+    }
+  };
 
   return (
     <header className="h-16 border-b border-sand-200 dark:border-sand-800/80 bg-[#FAF7F2]/90 dark:bg-[#181513]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 transition-colors">
@@ -164,6 +190,15 @@ export const Header: React.FC<HeaderProps> = ({
           <UploadCloud className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Upload Photos</span>
           <span className="sm:hidden">Upload</span>
+        </button>
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl text-sand-600 dark:text-sand-300 hover:bg-sand-200/70 dark:hover:bg-sand-800 transition-colors"
+          title={isDarkMode ? 'Switch to Warm Linen Paper Mode' : 'Switch to Dark Espresso Mode'}
+        >
+          {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-sand-600" />}
         </button>
 
         {/* Settings Button */}
