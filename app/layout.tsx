@@ -15,10 +15,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Preconnect to tile servers and APIs for instant map boot */}
-        <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://b.basemaps.cartocdn.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://c.basemaps.cartocdn.com" crossOrigin="anonymous" />
+        {/* Preconnect to open tile servers and APIs for instant map boot */}
+        <link rel="preconnect" href="https://a.tile.openstreetmap.fr" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://b.tile.openstreetmap.fr" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://tile.openstreetmap.org" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://en.wikipedia.org" />
       </head>

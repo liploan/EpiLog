@@ -16,11 +16,39 @@ interface MapCanvasProps {
   className?: string;
 }
 
-type MapStyleKey = 'osm' | 'voyager' | 'dark' | 'topo';
+type MapStyleKey = 'hot' | 'osm' | 'detailed' | 'topo';
 
 const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
+  hot: {
+    name: 'Atelier Pastel (HOT)',
+    style: {
+      version: 8,
+      sources: {
+        'osm-hot': {
+          type: 'raster',
+          tiles: [
+            'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+          ],
+          tileSize: 256,
+          maxzoom: 19,
+          attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',
+        },
+      },
+      layers: [
+        {
+          id: 'osm-hot-layer',
+          type: 'raster',
+          source: 'osm-hot',
+          minzoom: 0,
+          maxzoom: 22,
+        },
+      ],
+    },
+  },
   osm: {
-    name: 'OpenStreetMap',
+    name: 'OpenStreetMap Standard',
     style: {
       version: 8,
       sources: {
@@ -43,56 +71,28 @@ const MAP_STYLES: Record<MapStyleKey, { name: string; style: any }> = {
       ],
     },
   },
-  voyager: {
-    name: 'Editorial Street',
+  detailed: {
+    name: 'Cartographic Detailed',
     style: {
       version: 8,
       sources: {
-        'carto-voyager': {
+        'osm-detailed': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            'https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
           ],
           tileSize: 256,
           maxzoom: 19,
-          attribution: '© OpenStreetMap contributors, © CARTO',
+          attribution: '© OpenStreetMap contributors, OpenStreetMap France',
         },
       },
       layers: [
         {
-          id: 'carto-voyager-layer',
+          id: 'osm-detailed-layer',
           type: 'raster',
-          source: 'carto-voyager',
-          minzoom: 0,
-          maxzoom: 22,
-        },
-      ],
-    },
-  },
-  dark: {
-    name: 'Midnight Dark',
-    style: {
-      version: 8,
-      sources: {
-        'carto-dark': {
-          type: 'raster',
-          tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-          ],
-          tileSize: 256,
-          maxzoom: 19,
-          attribution: '© OpenStreetMap contributors, © CARTO',
-        },
-      },
-      layers: [
-        {
-          id: 'carto-dark-layer',
-          type: 'raster',
-          source: 'carto-dark',
+          source: 'osm-detailed',
           minzoom: 0,
           maxzoom: 22,
         },
@@ -141,7 +141,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLDivElement }>>(new Map());
   const hasInitialFitted = useRef(false);
-  const [activeStyle, setActiveStyle] = useState<MapStyleKey>('voyager');
+  const [activeStyle, setActiveStyle] = useState<MapStyleKey>('hot');
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
   const [autoPanEnabled, setAutoPanEnabled] = useState(true);
 

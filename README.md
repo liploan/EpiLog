@@ -149,7 +149,7 @@ Where:
 | **Language** | [TypeScript 5.6](https://www.typescriptlang.org/) | Strict type safety across travel models |
 | **Styling** | [Tailwind CSS 3.4](https://tailwindcss.com/) | Atelier Monograph design tokens & responsive layout |
 | **Cartography** | [MapLibre GL 4.7](https://maplibre.org/) | WebGL hardware-accelerated vector & raster rendering |
-| **Basemaps** | CARTO Voyager, OSM, CARTO Dark, OpenTopoMap | Multi-style cartographic basemaps |
+| **Basemaps** | Atelier Pastel (HOT), OSM Standard, OpenTopoMap | 100% open, API-key-free cartographic basemaps |
 | **Metadata** | `exifr` & `heic2any` | Client-side EXIF/XMP parsing and Apple HEIC conversion |
 | **AI Vision** | Google Generative AI (`@google/generative-ai`) | Multimodal Gemini Vision for scene synthesis |
 | **Export Engine** | `html-to-image` | High-DPI canvas & book monograph PNG generation |
