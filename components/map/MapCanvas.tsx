@@ -141,7 +141,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLDivElement }>>(new Map());
   const hasInitialFitted = useRef(false);
-  const [activeStyle, setActiveStyle] = useState<MapStyleKey>('osm');
+  const [activeStyle, setActiveStyle] = useState<MapStyleKey>('voyager');
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
   const [autoPanEnabled, setAutoPanEnabled] = useState(true);
 
@@ -244,14 +244,14 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           'line-cap': 'round',
         },
         paint: {
-          'line-color': '#ea580c',
+          'line-color': '#933e1a',
           'line-width': 8,
-          'line-opacity': 0.25,
+          'line-opacity': 0.2,
           'line-blur': 4,
         },
       });
 
-      // Main route polyline with dashed travel flow
+      // Main route polyline with refined dashed travel trajectory
       map.addLayer({
         id: 'route-main',
         type: 'line',
@@ -261,8 +261,8 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           'line-cap': 'round',
         },
         paint: {
-          'line-color': '#f97316',
-          'line-width': 3.5,
+          'line-color': '#b85429',
+          'line-width': 3,
           'line-dasharray': [2, 1.5],
         },
       });
@@ -282,13 +282,13 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
       const inner = document.createElement('div');
       inner.className =
-        'flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs shadow-lg transition-all duration-300 border-2 border-white bg-amber-600 text-white';
-      inner.innerText = String(stop.stopIndex);
+        'flex items-center justify-center w-8 h-8 rounded-full font-serif font-bold text-xs shadow-editorial transition-all duration-300 border-2 border-white bg-[#2a2420] text-[#faf7f2]';
+      inner.innerText = `0${stop.stopIndex}`;
       el.appendChild(inner);
 
       // Pulse ring element for active state
       const pulse = document.createElement('div');
-      pulse.className = 'absolute -inset-1.5 rounded-full bg-orange-500/30 -z-10 hidden pulse-ring-el';
+      pulse.className = 'absolute -inset-1.5 rounded-full bg-atelier-terracotta/25 -z-10 hidden pulse-ring-el';
       el.appendChild(pulse);
 
       // Tooltip preview with direct Map link
@@ -304,12 +304,12 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         closeOnClick: false,
         className: 'epilog-pin-popup',
       }).setHTML(
-        `<div class="p-2.5 max-w-[220px] text-xs space-y-1.5">
-          <div class="font-bold text-gray-900 truncate">Stop ${stop.stopIndex}: ${stop.poiName}</div>
-          <div class="text-gray-500 text-[11px]">${stop.photos.length} photos &bull; ${stop.reflection.category}</div>
-          <div class="pt-1.5 border-t border-gray-200/80 flex items-center justify-between">
-            <span class="text-[10px] text-gray-400 font-mono">${stop.centerCoords.lat.toFixed(4)}, ${stop.centerCoords.lng.toFixed(4)}</span>
-            <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-orange-600 hover:text-orange-700 underline underline-offset-2 flex items-center gap-0.5" onclick="event.stopPropagation()">Open in Maps ↗</a>
+        `<div class="p-3 max-w-[230px] text-xs space-y-1.5 bg-[#FAF7F2] text-[#1C1917] font-sans rounded-xl">
+          <div class="font-serif font-bold text-sm text-[#1C1917] truncate">Stop 0${stop.stopIndex}: ${stop.poiName}</div>
+          <div class="text-[#57534E] text-[11px] font-medium">${stop.photos.length} photos &bull; ${stop.reflection.category}</div>
+          <div class="pt-1.5 border-t border-[#E7DED1] flex items-center justify-between">
+            <span class="text-[10px] text-[#8C827A] font-mono">${stop.centerCoords.lat.toFixed(4)}, ${stop.centerCoords.lng.toFixed(4)}</span>
+            <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-[#B85429] hover:underline flex items-center gap-0.5" onclick="event.stopPropagation()">Open in Maps ↗</a>
           </div>
         </div>`
       );
@@ -378,15 +378,15 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
       if (isActive) {
         inner.className =
-          'flex items-center justify-center w-9 h-9 rounded-full font-bold text-sm shadow-2xl border-2 border-white bg-orange-600 text-white ring-4 ring-orange-400/40';
+          'flex items-center justify-center w-9 h-9 rounded-full font-serif font-bold text-sm shadow-monograph border-2 border-white bg-atelier-terracotta text-white ring-4 ring-atelier-terracotta/30';
         if (pulse) pulse.classList.remove('hidden');
       } else if (isHovered) {
         inner.className =
-          'flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs shadow-xl border-2 border-white bg-orange-500 text-white ring-2 ring-orange-300';
+          'flex items-center justify-center w-8 h-8 rounded-full font-serif font-bold text-xs shadow-editorial border-2 border-white bg-atelier-terracotta-light text-white ring-2 ring-atelier-terracotta/40';
         if (pulse) pulse.classList.add('hidden');
       } else {
         inner.className =
-          'flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs shadow-md border-2 border-white bg-stone-800 text-stone-100 hover:bg-orange-600';
+          'flex items-center justify-center w-8 h-8 rounded-full font-serif font-bold text-xs shadow-subtle border-2 border-white bg-[#2a2420] text-[#faf7f2] hover:bg-atelier-terracotta';
         if (pulse) pulse.classList.add('hidden');
       }
     });
@@ -414,27 +414,27 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         <div className="relative">
           <button
             onClick={() => setStyleMenuOpen(!styleMenuOpen)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg border border-stone-200/80 dark:border-stone-800 text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-50 transition-all"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#FAF7F2]/95 dark:bg-[#1e1914]/95 backdrop-blur-md shadow-editorial border border-sand-300/80 dark:border-sand-800 text-xs font-semibold text-sand-900 dark:text-sand-100 hover:bg-white transition-all"
             title="Switch Map Style"
           >
-            <Layers className="w-3.5 h-3.5 text-orange-600" />
-            <span>{MAP_STYLES[activeStyle].name}</span>
+            <Layers className="w-3.5 h-3.5 text-atelier-terracotta" />
+            <span className="font-serif">{MAP_STYLES[activeStyle].name}</span>
           </button>
 
           {styleMenuOpen && (
-            <div className="absolute top-full left-0 mt-2 w-48 rounded-xl bg-white dark:bg-stone-900 shadow-2xl border border-stone-200 dark:border-stone-800 py-1.5 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute top-full left-0 mt-2 w-48 rounded-2xl bg-[#FAF7F2] dark:bg-[#1e1914] shadow-monograph border border-sand-300/80 dark:border-sand-800 py-2 z-30 animate-in fade-in slide-in-from-top-2 duration-150">
               {(Object.keys(MAP_STYLES) as MapStyleKey[]).map((key) => (
                 <button
                   key={key}
                   onClick={() => handleStyleChange(key)}
                   className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition-colors ${
                     activeStyle === key
-                      ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 font-bold'
-                      : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                      ? 'bg-sand-200/80 dark:bg-sand-800/80 text-atelier-terracotta font-bold'
+                      : 'text-sand-700 dark:text-sand-300 hover:bg-sand-200/40 dark:hover:bg-sand-800/40'
                   }`}
                 >
-                  <span>{MAP_STYLES[key].name}</span>
-                  {activeStyle === key && <span className="w-1.5 h-1.5 rounded-full bg-orange-600" />}
+                  <span className="font-serif">{MAP_STYLES[key].name}</span>
+                  {activeStyle === key && <span className="w-1.5 h-1.5 rounded-full bg-atelier-terracotta" />}
                 </button>
               ))}
             </div>
@@ -447,10 +447,10 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         {/* Toggle Auto-Pan Tracking */}
         <button
           onClick={() => setAutoPanEnabled(!autoPanEnabled)}
-          className={`p-2.5 rounded-xl backdrop-blur-md shadow-lg border text-xs transition-all ${
+          className={`p-2.5 rounded-2xl backdrop-blur-md shadow-editorial border text-xs transition-all ${
             autoPanEnabled
-              ? 'bg-orange-600 text-white border-orange-500 shadow-orange-600/20'
-              : 'bg-white/95 dark:bg-stone-900/95 border-stone-200/80 dark:border-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
+              ? 'bg-atelier-terracotta text-white border-atelier-terracotta shadow-atelier-terracotta/25'
+              : 'bg-[#FAF7F2]/95 dark:bg-[#1e1914]/95 border-sand-300/80 dark:border-sand-800 text-sand-500 hover:text-sand-900 dark:hover:text-sand-100'
           }`}
           title={autoPanEnabled ? 'Auto-pan camera enabled (click to lock camera)' : 'Auto-pan camera disabled (click to follow timeline)'}
         >
@@ -459,14 +459,14 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
         <button
           onClick={() => mapRef.current?.zoomIn()}
-          className="p-2.5 rounded-xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg border border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-stone-50 transition-all"
+          className="p-2.5 rounded-2xl bg-[#FAF7F2]/95 dark:bg-[#1e1914]/95 backdrop-blur-md shadow-editorial border border-sand-300/80 dark:border-sand-800 text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta hover:bg-white transition-all"
           title="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => mapRef.current?.zoomOut()}
-          className="p-2.5 rounded-xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg border border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-stone-50 transition-all"
+          className="p-2.5 rounded-2xl bg-[#FAF7F2]/95 dark:bg-[#1e1914]/95 backdrop-blur-md shadow-editorial border border-sand-300/80 dark:border-sand-800 text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta hover:bg-white transition-all"
           title="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
@@ -475,7 +475,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           onClick={() => {
             if (mapRef.current) fitToStops(mapRef.current, stops);
           }}
-          className="p-2.5 rounded-xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg border border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-stone-50 transition-all"
+          className="p-2.5 rounded-2xl bg-[#FAF7F2]/95 dark:bg-[#1e1914]/95 backdrop-blur-md shadow-editorial border border-sand-300/80 dark:border-sand-800 text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta hover:bg-white transition-all"
           title="Fit All Stops"
         >
           <Compass className="w-4 h-4" />

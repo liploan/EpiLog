@@ -22,7 +22,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://en.wikipedia.org" />
       </head>
-      <body className="bg-stone-950 text-stone-100 antialiased min-h-screen flex flex-col selection:bg-orange-500 selection:text-white">
+      <body className="bg-sand-100 dark:bg-sand-950 text-sand-900 dark:text-sand-100 antialiased min-h-screen flex flex-col selection:bg-atelier-terracotta selection:text-white">
         {children}
       </body>
     </html>

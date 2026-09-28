@@ -1,34 +1,42 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #fdfbf7;
+  --background: #faf7f2;
   --foreground: #1c1917;
   --card: #ffffff;
   --card-foreground: #1c1917;
+  --paper-warm: #f3ece1;
+  --paper-linen: #eadecb;
+  --border-subtle: #e7ded1;
 }
 
 .dark {
-  --background: #0f1115;
-  --foreground: #f3f4f6;
-  --card: #181b20;
-  --card-foreground: #f3f4f6;
+  --background: #171513;
+  --foreground: #f4ede2;
+  --card: #221e1a;
+  --card-foreground: #f4ede2;
+  --paper-warm: #2a2520;
+  --paper-linen: #38312a;
+  --border-subtle: #332d26;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
-/* Custom scrollbars for clean editorial aesthetic */
+/* Custom scrollbars for refined archival aesthetic */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -36,45 +44,57 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.25);
+  background: rgba(180, 160, 140, 0.35);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.45);
+  background: rgba(184, 84, 41, 0.5);
 }
 
 /* MapLibre custom marker animation */
 .custom-pin-marker {
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
 }
 
 .custom-pin-marker.active {
-  transform: scale(1.3) translateY(-6px);
+  transform: scale(1.22) translateY(-6px);
   z-index: 50 !important;
 }
 
 .custom-pin-marker.hovered {
-  transform: scale(1.15) translateY(-3px);
+  transform: scale(1.12) translateY(-3px);
   z-index: 40 !important;
 }
 
-/* Custom pulsing halo */
+/* Refined pulsing halo */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
-    opacity: 0.8;
+    opacity: 0.7;
   }
   50% {
-    transform: scale(1.4);
-    opacity: 0.2;
+    transform: scale(1.35);
+    opacity: 0.15;
   }
   100% {
     transform: scale(0.95);
-    opacity: 0.8;
+    opacity: 0.7;
   }
 }
 
 .pulse-active {
-  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  animation: pulse-ring 2.2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+/* Editorial Dropcap Utility */
+.dropcap::first-letter {
+  font-family: 'Fraunces', Georgia, serif;
+  float: left;
+  font-size: 3.25rem;
+  line-height: 0.8;
+  margin-right: 0.65rem;
+  margin-top: 0.15rem;
+  color: #b85429;
+  font-weight: 600;
 }

@@ -17,24 +17,24 @@ const MapCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full bg-[#121316] relative flex flex-col items-center justify-center overflow-hidden">
+      <div className="w-full h-full bg-[#f4efe6] dark:bg-[#1a1715] relative flex flex-col items-center justify-center overflow-hidden">
         {/* Subtle decorative grid background */}
         <div
-          className="absolute inset-0 opacity-15"
+          className="absolute inset-0 opacity-20"
           style={{
             backgroundImage:
-              'linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
+              'linear-gradient(to right, #b8a387 1px, transparent 1px), linear-gradient(to bottom, #b8a387 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
           }}
         />
-        <div className="relative z-10 flex flex-col items-center gap-3 text-stone-400">
-          <div className="w-10 h-10 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-orange-400 animate-pulse">
-            <span className="w-3 h-3 rounded-full bg-orange-500" />
+        <div className="relative z-10 flex flex-col items-center gap-3.5 text-sand-600 dark:text-sand-400">
+          <div className="w-11 h-11 rounded-2xl bg-atelier-terracotta/10 border border-atelier-terracotta/30 flex items-center justify-center text-atelier-terracotta shadow-subtle animate-pulse">
+            <span className="w-3 h-3 rounded-full bg-atelier-terracotta" />
           </div>
-          <div className="text-xs font-semibold tracking-wider uppercase text-stone-300">
-            Mounting Cartography Canvas
+          <div className="text-xs font-serif tracking-widest uppercase font-bold text-sand-800 dark:text-sand-200">
+            Rendering Cartographic Canvas
           </div>
-          <p className="text-[11px] text-stone-500 font-mono">Initializing WebGL &amp; OpenStreetMap Vector Engine</p>
+          <p className="text-[11px] text-sand-500 font-mono">Loading OpenStreetMap &amp; Micro-Corridor Trajectories</p>
         </div>
       </div>
     ),
@@ -161,8 +161,8 @@ export default function EpiLogDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-stone-950 text-stone-100">
-      {/* Top Navigation Bar */}
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-sand-100 dark:bg-sand-950 text-sand-900 dark:text-sand-100">
+      {/* Top Masthead Navigation Bar */}
       <Header
         currentTripId={trip.id}
         onLoadSampleTrip={handleLoadSampleTrip}
@@ -173,11 +173,11 @@ export default function EpiLogDashboard() {
         onSetMobileTab={setMobileTab}
       />
 
-      {/* Main Dual-Pane Workspace */}
+      {/* Option B: Clean Split Editorial Spread */}
       <main className="flex-1 flex overflow-hidden relative">
-        {/* Left Pane: Chronological Timeline Journal */}
+        {/* Left Pane: Chronological Monograph Journal */}
         <div
-          className={`w-full md:w-[480px] lg:w-[540px] xl:w-[580px] shrink-0 h-full border-r border-stone-800/80 bg-stone-950/60 backdrop-blur-sm z-10 ${
+          className={`w-full md:w-[500px] lg:w-[560px] xl:w-[620px] shrink-0 h-full border-r border-sand-200 dark:border-sand-800/80 bg-sand-50/70 dark:bg-sand-950/70 backdrop-blur-sm z-10 transition-all ${
             mobileTab === 'timeline' ? 'block' : 'hidden md:block'
           }`}
         >
