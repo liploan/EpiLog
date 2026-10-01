@@ -130,7 +130,7 @@ def analyze_and_plot():
     ax1.axhspan(40.38, 40.45, color='#00d2d3', alpha=0.25, label='Madrid (40.41° N)')
     ax1.axhspan(40.88, 40.92, color='#1dd1a1', alpha=0.25, label='Segovia (40.90° N)')
     ax1.axhspan(40.94, 40.98, color='#ff9f43', alpha=0.25, label='Salamanca (40.96° N)')
-    ax1.axhspan(39.44, 39.50, color='#ff9ff3', alpha=0.25, label='Guadalupe (39.47° N)')
+    ax1.axhspan(39.44, 39.50, color='#ff9ff3', alpha=0.25, label='Cáceres (39.47° N)')
     ax1.axhspan(39.83, 39.88, color='#ff6b6b', alpha=0.25, label='Toledo (39.86° N)')
 
     ax1.set_title('1. Chronological Latitude Timeline (Pristine Hardware Sensor)', fontsize=12, fontweight='bold')
@@ -156,7 +156,7 @@ def analyze_and_plot():
     ax2.set_title('2. Raw EXIF Longitude Degrees Register (Log Scale Anomaly)', fontsize=12, fontweight='bold')
     ax2.set_ylabel('Raw Degree Value (Corrupted Overflow)', fontsize=11)
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
-    ax2.axhline(71594846, color='#5f27cd', linestyle='--', label='Madrid/Salamanca/Toledo register (71,594,846 = 0x0444735E)')
+    ax2.axhline(71594846, color='#5f27cd', linestyle='--', label='Madrid/Salamanca/Toledo/Cáceres register (71,594,846 = 0x0444735E)')
     ax2.axhline(12110, color='#e67e22', linestyle='--', label='Segovia register (12,110 = 0x00002F4E)')
     ax2.legend(loc='upper right', fontsize=8, frameon=True)
 
@@ -175,8 +175,8 @@ def analyze_and_plot():
             resolved_lngs.append(-5.6642)
             cities.append('Salamanca')
         elif 39.40 <= lat <= 39.60:
-            resolved_lngs.append(-5.3258)
-            cities.append('Guadalupe')
+            resolved_lngs.append(-6.3722)
+            cities.append('Cáceres')
         elif 39.80 <= lat <= 39.95:
             resolved_lngs.append(-4.0245)
             cities.append('Toledo')
@@ -191,7 +191,7 @@ def analyze_and_plot():
         'Madrid': '#00d2d3',
         'Segovia': '#1dd1a1',
         'Salamanca': '#ff9f43',
-        'Guadalupe': '#ff9ff3',
+        'Cáceres': '#ff9ff3',
         'Toledo': '#ff6b6b'
     }
 
@@ -210,13 +210,13 @@ def analyze_and_plot():
     ax3.annotate('Madrid (-3.70°, 40.41°)', xy=(-3.7038, 40.41), xytext=(-3.4, 40.43), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
     ax3.annotate('Segovia (-4.12°, 40.90°)', xy=(-4.1215, 40.90), xytext=(-4.0, 40.82), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
     ax3.annotate('Salamanca (-5.66°, 40.96°)', xy=(-5.6642, 40.96), xytext=(-5.4, 41.02), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
-    ax3.annotate('Guadalupe (-5.33°, 39.47°)', xy=(-5.3258, 39.47), xytext=(-5.1, 39.38), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
+    ax3.annotate('Cáceres (-6.37°, 39.47°)', xy=(-6.3722, 39.47), xytext=(-6.1, 39.38), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
     ax3.annotate('Toledo (-4.02°, 39.86°)', xy=(-4.0245, 39.86), xytext=(-3.7, 39.78), arrowprops=dict(facecolor='black', arrowstyle='->', lw=0.8))
 
     # --- Plot 4: Photo Distribution per Destination ---
     ax4 = axes[1, 1]
     city_counts = with_gps['city'].value_counts()
-    ordered_cities = ['Madrid', 'Segovia', 'Salamanca', 'Guadalupe', 'Toledo']
+    ordered_cities = ['Madrid', 'Segovia', 'Salamanca', 'Cáceres', 'Toledo']
     ordered_counts = [city_counts.get(c, 0) for c in ordered_cities]
     bars = ax4.bar(ordered_cities, ordered_counts, color=[color_map[c] for c in ordered_cities], edgecolor='#222f3e', linewidth=1)
     

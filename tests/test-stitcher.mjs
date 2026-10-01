@@ -26,7 +26,8 @@ function calculateCentroid(coords) {
   return { lat: sum.lat / coords.length, lng: sum.lng / coords.length };
 }
 
-function matchOrphansToAnchors(photos, maxWindowSeconds = 180) {
+// NOTE: These implementations must stay in sync with lib/stitcher.ts thresholds and logic!
+function matchOrphansToAnchors(photos, maxWindowSeconds = 300) {
   const anchors = photos.filter((p) => p.isAnchor && p.coords !== null);
   const orphans = photos.filter((p) => !p.isAnchor || p.coords === null);
   let matchedOrphansCount = 0;
@@ -106,14 +107,20 @@ function clusterPhotosIntoStops(photos, options = {}) {
     clusters.push(currentCluster);
   }
 
-  return clusters.map((cluster, index) => ({
-    id: `stop-${index + 1}`,
-    stopIndex: index + 1,
-    startTime: new Date(cluster[0].timestamp),
-    endTime: new Date(cluster[cluster.length - 1].timestamp),
-    centerCoords: calculateCentroid(cluster.map((p) => p.coords)),
-    photos: cluster,
-  }));
+  return clusters.map((cluster, index) => {
+    // Pick hero photo (prefer DSLR/non-anchor, fallback to first photo)
+    const hero = cluster.find((p) => !p.isAnchor) || cluster[0];
+
+    return {
+      id: `stop-${index + 1}`,
+      stopIndex: index + 1,
+      startTime: new Date(cluster[0].timestamp),
+      endTime: new Date(cluster[cluster.length - 1].timestamp),
+      centerCoords: calculateCentroid(cluster.map((p) => p.coords)),
+      photos: cluster,
+      heroPhotoId: hero.id,
+    };
+  });
 }
 
 function computeTotalDistanceKm(stops) {
@@ -143,7 +150,7 @@ assert.strictEqual(centroid.lat, 15);
 assert.strictEqual(centroid.lng, 30);
 console.log('✓ Centroid calculation verified');
 
-// 3. Orphan Matching Test (±180s window)
+// 3. Orphan Matching Test (±300s window)
 const baseTime = new Date('2024-11-14T10:00:00Z').getTime();
 const samplePhotos = [
   {
@@ -169,7 +176,7 @@ const samplePhotos = [
   },
 ];
 
-const matchResult = matchOrphansToAnchors(samplePhotos, 180);
+const matchResult = matchOrphansToAnchors(samplePhotos, 300);
 assert.strictEqual(matchResult.anchorsCount, 1);
 assert.strictEqual(matchResult.orphansCount, 2);
 assert.strictEqual(matchResult.matchedOrphansCount, 1);
@@ -179,12 +186,12 @@ const matchedDslr = matchResult.photos.find((p) => p.id === 'dslr-1');
 assert(matchedDslr.coords !== null);
 assert.strictEqual(matchedDslr.matchedAnchorId, 'phone-1');
 assert.strictEqual(matchedDslr.timeDiffSeconds, 70);
-console.log('✓ Spatiotemporal orphan matching verified (±3 min window)');
+console.log('✓ Spatiotemporal orphan matching verified (±5 min window)');
 
 // 4. Clustering Test (2h / 300m threshold)
 const clusterPhotos = [
   { id: 'p1', timestamp: new Date(baseTime), coords: { lat: 35.0001, lng: 135.7001 }, isAnchor: true },
-  { id: 'p2', timestamp: new Date(baseTime + 15 * 60 * 1000), coords: { lat: 35.0002, lng: 135.7002 }, isAnchor: true },
+  { id: 'p2', timestamp: new Date(baseTime + 15 * 60 * 1000), coords: { lat: 35.0002, lng: 135.7002 }, isAnchor: false }, // DSLR photo
   { id: 'p3', timestamp: new Date(baseTime + 3 * 3600 * 1000), coords: { lat: 35.045, lng: 135.75 }, isAnchor: true },
 ];
 
@@ -192,6 +199,7 @@ const stops = clusterPhotosIntoStops(clusterPhotos, { maxTimeGapHours: 2, maxDis
 assert.strictEqual(stops.length, 2);
 assert.strictEqual(stops[0].photos.length, 2);
 assert.strictEqual(stops[1].photos.length, 1);
+assert.strictEqual(stops[0].heroPhotoId, 'p2'); // verifies !isAnchor preference
 console.log('✓ Spatiotemporal stop clustering verified (2h / 300m thresholds)');
 
 // 5. Distance Metric

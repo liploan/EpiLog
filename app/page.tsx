@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { EpiLogTrip, TravelStop } from '@/types/epilog';
 import { SAMPLE_KYOTO_TRIP, SAMPLE_BARCELONA_TRIP } from '@/lib/sampleData';
@@ -17,13 +17,13 @@ const MapCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full bg-[#f4efe6] dark:bg-[#1a1715] relative flex flex-col items-center justify-center overflow-hidden">
+      <div className="w-full h-full bg-atelier-warm dark:bg-atelier-ink relative flex flex-col items-center justify-center overflow-hidden">
         {/* Subtle decorative grid background */}
         <div
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-20 text-sand-400"
           style={{
             backgroundImage:
-              'linear-gradient(to right, #b8a387 1px, transparent 1px), linear-gradient(to bottom, #b8a387 1px, transparent 1px)',
+              'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
             backgroundSize: '48px 48px',
           }}
         />
@@ -61,6 +61,9 @@ export default function EpiLogDashboard() {
   // AI Synthesis Loading
   const [synthesizingStopId, setSynthesizingStopId] = useState<string | null>(null);
   const [isSynthesizingAll, setIsSynthesizingAll] = useState(false);
+  const [synthesisError, setSynthesisError] = useState<string | null>(null);
+  const [synthesisProgress, setSynthesisProgress] = useState<{ current: number; total: number } | null>(null);
+  const abortSynthesisRef = useRef(false);
 
   // Load API key from localStorage on mount
   useEffect(() => {
@@ -100,16 +103,22 @@ export default function EpiLogDashboard() {
     try {
       const heroPhoto = stop.photos.find((p) => p.id === stop.heroPhotoId) || stop.photos[0];
 
+      const { synthesizeSceneWithGemini, downscaleImage } = await import('@/lib/gemini');
       let photoBase64: string | undefined = undefined;
+      
       if (heroPhoto?.file) {
-        photoBase64 = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(heroPhoto.file!);
-        });
+        photoBase64 = await downscaleImage(heroPhoto.file);
+      } else if (heroPhoto?.previewUrl) {
+        try {
+          const response = await fetch(heroPhoto.previewUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'sample.jpg', { type: blob.type });
+          photoBase64 = await downscaleImage(file);
+        } catch {
+          // Fall through to text-only synthesis
+        }
       }
 
-      const { synthesizeSceneWithGemini } = await import('@/lib/gemini');
       const result = await synthesizeSceneWithGemini({
         apiKey,
         poiName: stop.poiName,
@@ -143,6 +152,8 @@ export default function EpiLogDashboard() {
       }
     } catch (err) {
       console.error('Failed synthesizing stop:', err);
+      setSynthesisError(`AI synthesis failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setTimeout(() => setSynthesisError(null), 8000);
     } finally {
       setSynthesizingStopId(null);
     }
@@ -152,11 +163,16 @@ export default function EpiLogDashboard() {
   const handleSynthesizeAllStops = async () => {
     if (trip.stops.length === 0) return;
     setIsSynthesizingAll(true);
+    abortSynthesisRef.current = false;
 
-    for (const stop of trip.stops) {
-      await handleSynthesizeStop(stop);
+    for (let i = 0; i < trip.stops.length; i++) {
+      if (abortSynthesisRef.current) break;
+      setSynthesisProgress({ current: i + 1, total: trip.stops.length });
+      await handleSynthesizeStop(trip.stops[i]);
     }
 
+    setSynthesisProgress(null);
+    abortSynthesisRef.current = false;
     setIsSynthesizingAll(false);
   };
 
@@ -165,6 +181,7 @@ export default function EpiLogDashboard() {
       {/* Top Masthead Navigation Bar */}
       <Header
         currentTripId={trip.id}
+        currentTripTitle={trip.title}
         onLoadSampleTrip={handleLoadSampleTrip}
         onOpenUploadModal={() => setIsUploadModalOpen(true)}
         onOpenSettingsModal={() => setIsSettingsOpen(true)}
@@ -173,14 +190,34 @@ export default function EpiLogDashboard() {
         onSetMobileTab={setMobileTab}
       />
 
+      {synthesisError && (
+        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-3 bg-red-50 text-red-700 px-4 py-3 rounded-lg shadow-elevated border border-red-200">
+          <span className="text-sm font-medium">{synthesisError}</span>
+          <button onClick={() => setSynthesisError(null)} className="text-red-500 hover:text-red-700 font-bold">&times;</button>
+        </div>
+      )}
+
       {/* Option B: Clean Split Editorial Spread */}
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Pane: Chronological Monograph Journal */}
         <div
-          className={`w-full md:w-[500px] lg:w-[560px] xl:w-[620px] shrink-0 h-full border-r border-sand-200 dark:border-sand-800/80 bg-sand-50/70 dark:bg-sand-950/70 backdrop-blur-sm z-10 transition-all ${
+          className={`w-full md:w-[45%] shrink-0 h-full border-r border-sand-200 dark:border-sand-800/80 bg-sand-50/70 dark:bg-sand-950/70 backdrop-blur-sm z-10 transition-all flex flex-col relative ${
             mobileTab === 'timeline' ? 'block' : 'hidden md:block'
           }`}
         >
+          {isSynthesizingAll && synthesisProgress && (
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-sand-900 border border-sand-200 dark:border-sand-700 shadow-elevated rounded-full px-4 py-2 flex items-center gap-3">
+              <span className="text-sm font-medium whitespace-nowrap">
+                Synthesizing {synthesisProgress.current} / {synthesisProgress.total}...
+              </span>
+              <button 
+                onClick={() => { abortSynthesisRef.current = true; }}
+                className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full hover:bg-red-200"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
           <TimelineView
             trip={trip}
             activeStopId={activeStopId}

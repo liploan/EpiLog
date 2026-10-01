@@ -87,7 +87,7 @@ export interface TravelStop {
     type: string;
     coords: GeoCoordinate;
     address?: string;
-    distanceFromLatMeters?: number;
+    distanceMeters?: number;
   }[];
   microEstablishments?: MicroEstablishment[];
   detectedDishes?: CulinaryDish[];

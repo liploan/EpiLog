@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Key, X, Check, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { Key, X, Check, ExternalLink, Sparkles } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-md bg-[#FAF7F2] dark:bg-sand-900 border border-sand-300/80 dark:border-sand-800 rounded-3xl shadow-monograph p-6 space-y-6 text-sand-900 dark:text-sand-100"
+        className="relative w-full max-w-md bg-atelier-paper dark:bg-sand-900 border border-sand-300/80 dark:border-sand-800 rounded-3xl shadow-monograph p-6 space-y-6 text-sand-900 dark:text-sand-100"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">

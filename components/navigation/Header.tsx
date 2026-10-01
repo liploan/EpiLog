@@ -4,21 +4,19 @@ import React, { useState, useEffect } from 'react';
 import {
   Compass,
   UploadCloud,
-  Sparkles,
   Settings,
   Map,
   List,
-  RotateCcw,
   BookOpen,
   ChevronDown,
   Globe,
-  Feather,
   Sun,
   Moon,
 } from 'lucide-react';
 
 interface HeaderProps {
   currentTripId?: string;
+  currentTripTitle?: string;
   onLoadSampleTrip: (tripKey: 'kyoto' | 'barcelona') => void;
   onOpenUploadModal: () => void;
   onOpenSettingsModal: () => void;
@@ -29,6 +27,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   currentTripId,
+  currentTripTitle,
   onLoadSampleTrip,
   onOpenUploadModal,
   onOpenSettingsModal,
@@ -62,8 +61,21 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDemoMenuOpen(false);
+      }
+    };
+    if (demoMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [demoMenuOpen]);
+
   return (
-    <header className="h-16 border-b border-sand-200 dark:border-sand-800/80 bg-[#FAF7F2]/90 dark:bg-[#181513]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 transition-colors">
+    <header className="h-16 border-b border-sand-200 dark:border-sand-800/80 bg-atelier-paper/90 dark:bg-atelier-ink/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 transition-colors">
       {/* Brand Masthead */}
       <div className="flex items-center gap-3.5">
         <div className="w-9 h-9 rounded-xl bg-atelier-terracotta text-white flex items-center justify-center shadow-sm shadow-atelier-terracotta/25 border border-atelier-terracotta-dark/20">
@@ -116,14 +128,16 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Action Toolbar */}
       <div className="flex items-center gap-2.5">
         {/* Sample Trip Dropdown Picker */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDemoMenuOpen(!demoMenuOpen)}
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-sand-800 dark:text-sand-200 bg-sand-200/60 dark:bg-sand-900 hover:bg-sand-200 dark:hover:bg-sand-800 border border-sand-300/70 dark:border-sand-700/70 transition-colors shadow-subtle"
             title="Switch between curated travel journals"
           >
             <Globe className="w-3.5 h-3.5 text-atelier-terracotta" />
-            <span className="font-medium">{currentTripId === 'trip-barcelona-2024' ? '🇪🇸 Barcelona Modernisme' : '⛩️ Kyoto & Higashiyama'}</span>
+            <span className="font-medium truncate max-w-[200px]">
+              {currentTripTitle || 'Trip Details'}
+            </span>
             <ChevronDown className="w-3 h-3 opacity-60 ml-0.5" />
           </button>
 
@@ -185,6 +199,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Upload Photos Button */}
         <button
           onClick={onOpenUploadModal}
+          aria-label="Upload photos"
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-atelier-terracotta hover:bg-atelier-terracotta-dark text-white shadow-subtle shadow-atelier-terracotta/30 border border-atelier-terracotta-dark/20 transition-all"
         >
           <UploadCloud className="w-3.5 h-3.5" />
@@ -195,6 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
+          aria-label="Toggle dark mode"
           className="p-2 rounded-xl text-sand-600 dark:text-sand-300 hover:bg-sand-200/70 dark:hover:bg-sand-800 transition-colors"
           title={isDarkMode ? 'Switch to Warm Linen Paper Mode' : 'Switch to Dark Espresso Mode'}
         >
@@ -204,6 +220,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Settings Button */}
         <button
           onClick={onOpenSettingsModal}
+          aria-label="Settings"
           className="p-2 rounded-xl text-sand-600 dark:text-sand-300 hover:bg-sand-200/70 dark:hover:bg-sand-800 transition-colors"
           title="AI & API Settings"
         >

@@ -89,8 +89,8 @@ export function matchOrphansToAnchors(
       }
     }
 
-    // Match if within window or same travel day (within 24h)
-    if (bestAnchor && bestAnchor.coords && minTimeDiffSec <= 24 * 3600) {
+    // Match if within window
+    if (bestAnchor && bestAnchor.coords && minTimeDiffSec <= maxWindowSeconds) {
       matchedOrphansCount++;
       return {
         ...photo,
@@ -216,18 +216,8 @@ export function clusterPhotosIntoStops(
     const startTime = new Date(cluster[0].timestamp);
     const endTime = new Date(cluster[cluster.length - 1].timestamp);
 
-    // Pick hero photo (default to the first or highest-detail anchor)
-    const hero = cluster.find((p) => p.isAnchor) || cluster[0];
-
-    // Layer 2: Decompose into micro-establishments
-    const microGroups = decomposeStopIntoMicroEstablishments(cluster, microDist);
-    const microEstablishments = microGroups.map((g, idx) => ({
-      name: `Establishment ${idx + 1}`,
-      type: 'venue',
-      coords: g.centroid,
-      precisionMeters: 1.0,
-      photoIds: g.photos.map((p) => p.id),
-    }));
+    // Pick hero photo (prefer DSLR/non-anchor, fallback to first photo)
+    const hero = cluster.find((p) => !p.isAnchor) || cluster[0];
 
     return {
       id: `stop-${index + 1}-${Date.now().toString(36)}`,
@@ -247,7 +237,7 @@ export function clusterPhotosIntoStops(
         category: 'Cultural',
         takeawayText: '',
       },
-      microEstablishments: microEstablishments.length > 0 ? microEstablishments : undefined,
+      microEstablishments: [],
     };
   });
 

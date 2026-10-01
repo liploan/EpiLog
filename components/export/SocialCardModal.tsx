@@ -8,10 +8,7 @@ import {
   X,
   Download,
   Check,
-  Sparkles,
-  Share2,
   Palette,
-  LayoutTemplate,
   Smartphone,
   Square,
 } from 'lucide-react';
@@ -27,25 +24,25 @@ const THEMES: { id: CardTheme; name: string; desc: string; previewBg: string }[]
     id: 'editorial-dark',
     name: 'Editorial Dark',
     desc: 'Deep obsidian with orange accents',
-    previewBg: 'bg-stone-900 border-orange-500',
+    previewBg: 'bg-sand-900 border-atelier-terracotta',
   },
   {
     id: 'magazine-light',
     name: 'Magazine Light',
     desc: 'Editorial ivory paper aesthetic',
-    previewBg: 'bg-stone-100 border-stone-800',
+    previewBg: 'bg-sand-100 border-sand-800',
   },
   {
     id: 'sunset-terracotta',
     name: 'Terracotta Sunset',
     desc: 'Warm gradient with glassmorphism',
-    previewBg: 'bg-orange-900 border-amber-500',
+    previewBg: 'bg-atelier-terracotta border-atelier-ochre',
   },
   {
     id: 'vintage-stamp',
     name: 'Vintage Passport',
     desc: 'Classic explorer border and stamp',
-    previewBg: 'bg-amber-100 border-amber-800',
+    previewBg: 'bg-atelier-warm border-atelier-ochre',
   },
 ];
 
@@ -86,13 +83,13 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-4xl max-h-[92vh] bg-stone-900 border border-stone-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden"
+        className="relative w-full max-w-4xl max-h-[92vh] bg-sand-900 border border-sand-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-sand-800/80 hover:bg-sand-700 text-sand-300 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -110,29 +107,29 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
         </div>
 
         {/* Control Panel (Right) */}
-        <div className="w-full md:w-80 p-6 flex flex-col justify-between border-t md:border-t-0 md:border-l border-stone-800 bg-stone-900/95 space-y-6">
+        <div className="w-full md:w-80 p-6 flex flex-col justify-between border-t md:border-t-0 md:border-l border-sand-800 bg-sand-900/95 space-y-6">
           <div className="space-y-5">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-orange-400 uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-bold text-atelier-terracotta-light uppercase tracking-wider">
                 <Palette className="w-4 h-4" />
                 <span>Social Event Studio</span>
               </div>
               <h3 className="text-xl font-bold text-white mt-1">Export Social Card</h3>
-              <p className="text-xs text-stone-400 mt-1">
+              <p className="text-xs text-sand-400 mt-1">
                 Client-rendered DOM cards for Instagram Stories, square posts, and Pinterest pins.
               </p>
             </div>
 
             {/* Format / Aspect Ratio Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-300">Aspect Ratio</label>
+              <label className="text-xs font-semibold text-sand-300">Aspect Ratio</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setAspectRatio('9:16')}
                   className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all ${
                     aspectRatio === '9:16'
-                      ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                      : 'border-stone-800 bg-stone-800/40 text-stone-400 hover:text-stone-200'
+                      ? 'border-atelier-terracotta bg-atelier-terracotta/15 text-atelier-terracotta-light'
+                      : 'border-sand-800 bg-sand-800/40 text-sand-400 hover:text-sand-200'
                   }`}
                 >
                   <Smartphone className="w-3.5 h-3.5" />
@@ -142,8 +139,8 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
                   onClick={() => setAspectRatio('1:1')}
                   className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all ${
                     aspectRatio === '1:1'
-                      ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                      : 'border-stone-800 bg-stone-800/40 text-stone-400 hover:text-stone-200'
+                      ? 'border-atelier-terracotta bg-atelier-terracotta/15 text-atelier-terracotta-light'
+                      : 'border-sand-800 bg-sand-800/40 text-sand-400 hover:text-sand-200'
                   }`}
                 >
                   <Square className="w-3.5 h-3.5" />
@@ -154,7 +151,7 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
 
             {/* Theme Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-300">Editorial Palette</label>
+              <label className="text-xs font-semibold text-sand-300">Editorial Palette</label>
               <div className="space-y-1.5">
                 {THEMES.map((theme) => (
                   <button
@@ -162,16 +159,16 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
                     onClick={() => setSelectedTheme(theme.id)}
                     className={`w-full p-2.5 rounded-xl border text-left flex items-center gap-3 transition-all ${
                       selectedTheme === theme.id
-                        ? 'border-orange-500 bg-orange-500/10 text-white shadow-md'
-                        : 'border-stone-800 bg-stone-800/40 text-stone-400 hover:text-stone-200 hover:bg-stone-800'
+                        ? 'border-atelier-terracotta bg-atelier-terracotta/10 text-white shadow-md'
+                        : 'border-sand-800 bg-sand-800/40 text-sand-400 hover:text-sand-200 hover:bg-sand-800'
                     }`}
                   >
                     <span className={`w-3.5 h-3.5 rounded-full border-2 ${theme.previewBg}`} />
                     <div className="flex-1 truncate">
                       <div className="text-xs font-bold">{theme.name}</div>
-                      <div className="text-[10px] text-stone-400 truncate">{theme.desc}</div>
+                      <div className="text-[10px] text-sand-400 truncate">{theme.desc}</div>
                     </div>
-                    {selectedTheme === theme.id && <Check className="w-4 h-4 text-orange-400" />}
+                    {selectedTheme === theme.id && <Check className="w-4 h-4 text-atelier-terracotta-light" />}
                   </button>
                 ))}
               </div>
@@ -179,11 +176,11 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
           </div>
 
           {/* Export Action Buttons */}
-          <div className="space-y-2.5 pt-4 border-t border-stone-800">
+          <div className="space-y-2.5 pt-4 border-t border-sand-800">
             <button
               onClick={handleDownloadImage}
               disabled={isExporting}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg shadow-orange-600/30 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-atelier-terracotta hover:bg-atelier-terracotta-light text-white font-bold text-sm shadow-lg shadow-atelier-terracotta/30 transition-all disabled:opacity-50"
             >
               <Download className={`w-4 h-4 ${isExporting ? 'animate-bounce' : ''}`} />
               <span>{isExporting ? 'Rendering Card...' : `Download ${aspectRatio} PNG`}</span>
@@ -191,7 +188,7 @@ export const SocialCardModal: React.FC<SocialCardModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-full py-1.5 text-xs font-semibold text-stone-400 hover:text-stone-200 transition-colors text-center"
+              className="w-full py-1.5 text-xs font-semibold text-sand-400 hover:text-sand-200 transition-colors text-center"
             >
               Close Studio
             </button>

@@ -3,21 +3,18 @@
 import React, { useState, useRef } from 'react';
 import { processBatchPhotos } from '@/lib/ingestion';
 import { matchOrphansToAnchors, clusterPhotosIntoStops, computeTotalDistanceKm } from '@/lib/stitcher';
-import { enrichStop } from '@/lib/enrichment';
+import { enrichStopsSequentially } from '@/lib/enrichment';
 import { parseTrackFile, interpolateTrackCoords, TrackPoint } from '@/lib/gpx';
 import { EpiLogTrip, PhotoAsset, TravelStop } from '@/types/epilog';
 import {
   UploadCloud,
-  FileImage,
   Smartphone,
   Camera,
   CheckCircle2,
-  AlertCircle,
   Sparkles,
   Sliders,
   X,
   ArrowRight,
-  Layers,
   Navigation2,
 } from 'lucide-react';
 
@@ -36,9 +33,10 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressMsg, setProgressMsg] = useState('');
   const [progressPercent, setProgressPercent] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Parameter tuning
-  const [windowMinutes, setWindowMinutes] = useState(15);
+  const [windowMinutes, setWindowMinutes] = useState(3);
   const [timeGapHours, setTimeGapHours] = useState(3);
   const [distanceMeters, setDistanceMeters] = useState(2000);
   const [tripTitle, setTripTitle] = useState('Trip To Spain');
@@ -131,7 +129,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
       setProgressMsg('Extraction and orphan matching complete!');
     } catch (err) {
       console.error('Batch processing failed:', err);
-      alert('Error extracting metadata from photos.');
+      setErrorMsg('Error extracting metadata from photos.');
     } finally {
       setIsProcessing(false);
     }
@@ -157,12 +155,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
 
       // 3. Reverse Geocode & Historical Enrich stops in parallel
       setProgressMsg(`Enriching ${initialStops.length} stops with reverse geocoding & historical trivia...`);
-      const enrichedStops = await Promise.all(
-        initialStops.map(async (stop) => {
-          const enriched = await enrichStop(stop);
-          return enriched;
-        })
-      );
+      const enrichedStops = await enrichStopsSequentially(initialStops);
 
       const totalDistanceKm = computeTotalDistanceKm(enrichedStops);
 
@@ -172,7 +165,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
 
       const trip: EpiLogTrip = {
         id: `trip-${Date.now().toString(36)}`,
-        title: tripTitle || 'Trip To Spain',
+        title: tripTitle || 'My Trip',
         dateRange: { start: minDate, end: maxDate },
         stops: enrichedStops,
         totalDistanceKm,
@@ -182,7 +175,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
       onClose();
     } catch (err) {
       console.error('Failed generating trip:', err);
-      alert('Error creating trip from photos.');
+      setErrorMsg('Error creating trip from photos.');
     } finally {
       setIsProcessing(false);
     }
@@ -191,7 +184,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-2xl bg-[#FAF7F2] dark:bg-sand-900 border border-sand-300/80 dark:border-sand-800 rounded-3xl shadow-monograph p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto text-sand-900 dark:text-sand-100"
+        className="relative w-full max-w-2xl bg-atelier-paper dark:bg-sand-900 border border-sand-300/80 dark:border-sand-800 rounded-3xl shadow-monograph p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto text-sand-900 dark:text-sand-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -213,6 +206,13 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {errorMsg && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center justify-between">
+            <span>{errorMsg}</span>
+            <button onClick={() => setErrorMsg(null)} className="ml-2 text-red-500 hover:text-red-700">✕</button>
+          </div>
+        )}
 
         {/* Dropzone Area */}
         <div

@@ -7,6 +7,10 @@ import { TravelStop } from '@/types/epilog';
 import { Layers, MapPin, ZoomIn, ZoomOut, Compass, Navigation, LocateFixed } from 'lucide-react';
 import { getMapUrl } from '@/lib/utils';
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
 interface MapCanvasProps {
   stops: TravelStop[];
   activeStopId: string | null;
@@ -176,7 +180,13 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       }
     });
 
+    const resizeObserver = new ResizeObserver(() => { map.resize(); });
+    if (mapContainer.current) {
+      resizeObserver.observe(mapContainer.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
       markersRef.current.forEach(({ marker }) => marker.remove());
       markersRef.current.clear();
       map.remove();
@@ -305,8 +315,8 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         className: 'epilog-pin-popup',
       }).setHTML(
         `<div class="p-3 max-w-[230px] text-xs space-y-1.5 bg-[#FAF7F2] text-[#1C1917] font-sans rounded-xl">
-          <div class="font-serif font-bold text-sm text-[#1C1917] truncate">Stop 0${stop.stopIndex}: ${stop.poiName}</div>
-          <div class="text-[#57534E] text-[11px] font-medium">${stop.photos.length} photos &bull; ${stop.reflection.category}</div>
+          <div class="font-serif font-bold text-sm text-[#1C1917] truncate">Stop 0${stop.stopIndex}: ${escapeHtml(stop.poiName)}</div>
+          <div class="text-[#57534E] text-[11px] font-medium">${stop.photos.length} photos &bull; ${escapeHtml(stop.reflection.category)}</div>
           <div class="pt-1.5 border-t border-[#E7DED1] flex items-center justify-between">
             <span class="text-[10px] text-[#8C827A] font-mono">${stop.centerCoords.lat.toFixed(4)}, ${stop.centerCoords.lng.toFixed(4)}</span>
             <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-[#B85429] hover:underline flex items-center gap-0.5" onclick="event.stopPropagation()">Open in Maps ↗</a>
@@ -314,14 +324,30 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         </div>`
       );
 
+      let popupTimeout: NodeJS.Timeout;
+
       el.addEventListener('mouseenter', () => {
+        clearTimeout(popupTimeout);
         popup.setLngLat([stop.centerCoords.lng, stop.centerCoords.lat]).addTo(map);
         onHoverStop?.(stop.id);
+
+        const popupEl = popup.getElement();
+        if (popupEl) {
+          popupEl.addEventListener('mouseenter', () => clearTimeout(popupTimeout));
+          popupEl.addEventListener('mouseleave', () => {
+            popupTimeout = setTimeout(() => {
+              popup.remove();
+              onHoverStop?.(null);
+            }, 200);
+          });
+        }
       });
 
       el.addEventListener('mouseleave', () => {
-        popup.remove();
-        onHoverStop?.(null);
+        popupTimeout = setTimeout(() => {
+          popup.remove();
+          onHoverStop?.(null);
+        }, 200);
       });
 
       el.addEventListener('click', (e) => {

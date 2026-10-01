@@ -11,7 +11,6 @@ import {
   Smartphone,
   Sparkles,
   Calendar,
-  Filter,
   Search,
   Plus,
 } from 'lucide-react';
@@ -77,7 +76,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
             <button
               onClick={() => onSelectSampleTrip('kyoto')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-medium transition-all ${
-                trip.id !== 'trip-barcelona-2024'
+                trip.id === 'trip-kyoto-2024' || trip.id === 'kyoto'
                   ? 'bg-white dark:bg-sand-800 text-atelier-terracotta font-semibold shadow-subtle border border-sand-200/60 dark:border-sand-700/60'
                   : 'text-sand-600 dark:text-sand-400 hover:text-sand-900 dark:hover:text-sand-200 hover:bg-sand-200/50'
               }`}
@@ -88,7 +87,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
             <button
               onClick={() => onSelectSampleTrip('barcelona')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl font-medium transition-all ${
-                trip.id === 'trip-barcelona-2024'
+                trip.id === 'trip-barcelona-2024' || trip.id === 'barcelona'
                   ? 'bg-white dark:bg-sand-800 text-atelier-terracotta font-semibold shadow-subtle border border-sand-200/60 dark:border-sand-700/60'
                   : 'text-sand-600 dark:text-sand-400 hover:text-sand-900 dark:hover:text-sand-200 hover:bg-sand-200/50'
               }`}

@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans, Fraunces, Newsreader } from 'next/font/google';
 import './globals.css';
+
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-serif', display: 'swap' });
+const newsreader = Newsreader({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'EpiLog — The AI Travel Journal & Intellectual Keepsake',
@@ -22,7 +27,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://en.wikipedia.org" />
       </head>
-      <body className="bg-sand-100 dark:bg-sand-950 text-sand-900 dark:text-sand-100 antialiased min-h-screen flex flex-col selection:bg-atelier-terracotta selection:text-white">
+      <body className={`bg-sand-100 dark:bg-sand-950 text-sand-900 dark:text-sand-100 antialiased min-h-screen flex flex-col selection:bg-atelier-terracotta selection:text-white ${plusJakarta.variable} ${fraunces.variable} ${newsreader.variable}`}>
         {children}
       </body>
     </html>

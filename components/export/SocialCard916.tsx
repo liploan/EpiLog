@@ -3,7 +3,7 @@
 import React from 'react';
 import { TravelStop } from '@/types/epilog';
 import { formatDate, formatTime, getAssetUrl } from '@/lib/utils';
-import { MapPin, Compass, Sparkles, Landmark, Utensils, Trees, Globe2, Calendar } from 'lucide-react';
+import { MapPin, Compass, Sparkles, Utensils } from 'lucide-react';
 
 export type CardTheme = 'editorial-dark' | 'magazine-light' | 'vintage-stamp' | 'sunset-terracotta';
 export type AspectRatioType = '9:16' | '1:1';
@@ -27,44 +27,44 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
     switch (theme) {
       case 'magazine-light':
         return {
-          wrapper: 'bg-[#faf8f5] text-[#1c1917] border border-[#e7e2d9]',
-          badgeBg: 'bg-[#1c1917] text-white',
-          accentColor: 'text-[#c2410c]',
-          cardBox: 'bg-white border border-[#e7e2d9] shadow-sm',
+          wrapper: 'bg-atelier-paper text-atelier-ink border border-sand-300',
+          badgeBg: 'bg-atelier-ink text-white',
+          accentColor: 'text-atelier-terracotta-dark',
+          cardBox: 'bg-white border border-sand-300 shadow-sm',
           fontFamily: 'font-serif',
-          quoteStyle: 'text-stone-700 italic border-l-2 border-stone-800',
-          watermark: 'text-stone-400',
+          quoteStyle: 'text-sand-700 italic border-l-2 border-sand-800',
+          watermark: 'text-sand-400',
         };
       case 'vintage-stamp':
         return {
-          wrapper: 'bg-[#f4efe6] text-[#292524] border-8 border double border-[#d6cbbe]',
-          badgeBg: 'bg-[#78350f] text-[#fef3c7]',
-          accentColor: 'text-[#9a3412]',
-          cardBox: 'bg-[#fbf8f2] border border-[#d6cbbe] shadow-inner',
+          wrapper: 'bg-atelier-warm text-sand-800 border-8 border double border-sand-300',
+          badgeBg: 'bg-atelier-terracotta-dark text-sand-100',
+          accentColor: 'text-atelier-terracotta-dark',
+          cardBox: 'bg-sand-50 border border-sand-300 shadow-inner',
           fontFamily: 'font-serif',
-          quoteStyle: 'text-stone-800 italic border-l-2 border-amber-800',
-          watermark: 'text-amber-900/40',
+          quoteStyle: 'text-sand-800 italic border-l-2 border-atelier-ochre',
+          watermark: 'text-atelier-ochre/40',
         };
       case 'sunset-terracotta':
         return {
-          wrapper: 'bg-gradient-to-b from-[#431407] via-[#2a1209] to-[#0c0a09] text-white',
-          badgeBg: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white',
-          accentColor: 'text-orange-400',
+          wrapper: 'bg-gradient-to-b from-atelier-terracotta-dark via-sand-900 to-sand-950 text-white',
+          badgeBg: 'bg-gradient-to-r from-atelier-terracotta to-atelier-ochre text-white',
+          accentColor: 'text-atelier-terracotta-light',
           cardBox: 'bg-white/10 backdrop-blur-md border border-white/15',
           fontFamily: 'font-sans',
-          quoteStyle: 'text-orange-100 italic border-l-2 border-orange-400',
+          quoteStyle: 'text-sand-100 italic border-l-2 border-atelier-terracotta-light',
           watermark: 'text-white/40',
         };
       case 'editorial-dark':
       default:
         return {
-          wrapper: 'bg-[#121316] text-[#f3f4f6]',
-          badgeBg: 'bg-orange-600 text-white',
-          accentColor: 'text-orange-500',
-          cardBox: 'bg-[#1a1c22] border border-stone-800/80',
+          wrapper: 'bg-sand-950 text-sand-100',
+          badgeBg: 'bg-atelier-terracotta text-white',
+          accentColor: 'text-atelier-terracotta',
+          cardBox: 'bg-sand-900 border border-sand-800',
           fontFamily: 'font-serif',
-          quoteStyle: 'text-stone-300 italic border-l-2 border-orange-500',
-          watermark: 'text-stone-500',
+          quoteStyle: 'text-sand-300 italic border-l-2 border-atelier-terracotta',
+          watermark: 'text-sand-500',
         };
     }
   };
@@ -111,7 +111,7 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
             {stop.poiName}
           </h2>
           <div className="flex items-center gap-1.5 mt-0.5 text-[11px] opacity-80">
-            <MapPin className="w-3 h-3 text-orange-500 shrink-0" />
+            <MapPin className="w-3 h-3 text-atelier-terracotta shrink-0" />
             <span className="truncate">
               {[stop.locationContext.neighborhood, stop.locationContext.city, stop.locationContext.country]
                 .filter(Boolean)
@@ -135,15 +135,15 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-500">
+          <div className="w-full h-full bg-sand-800 flex items-center justify-center text-sand-500">
             No Photo
           </div>
         )}
 
         {/* Dish / Gastronomy Stamp Tag */}
         {stop.detectedDishes && stop.detectedDishes.length > 0 && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-amber-500/40 text-[8.5px] text-amber-300 font-semibold flex items-center gap-1 shadow-md">
-            <Utensils className="w-2.5 h-2.5 text-amber-400" />
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-atelier-ochre/40 text-[8.5px] text-atelier-ochre-light font-semibold flex items-center gap-1 shadow-md">
+            <Utensils className="w-2.5 h-2.5 text-atelier-ochre" />
             <span className="truncate max-w-[170px]">{stop.detectedDishes[0].name}</span>
           </div>
         )}
@@ -182,7 +182,7 @@ export const SocialCard916: React.FC<SocialCard916Props> = ({
         {/* Footer Brand Watermark */}
         <div className="flex items-center justify-between pt-1 border-t border-current/10 text-[9px]">
           <div className="flex items-center gap-1.5 font-bold tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-atelier-terracotta inline-block" />
             <span className="font-serif tracking-widest uppercase">EpiLog Travel Journal</span>
           </div>
           <span className={styles.watermark}>epilog.app</span>

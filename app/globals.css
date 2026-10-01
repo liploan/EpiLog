@@ -1,5 +1,4 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,9 +9,6 @@
   --foreground: #1c1917;
   --card: #ffffff;
   --card-foreground: #1c1917;
-  --paper-warm: #f3ece1;
-  --paper-linen: #eadecb;
-  --border-subtle: #e7ded1;
 }
 
 .dark {
@@ -20,9 +16,6 @@
   --foreground: #f4ede2;
   --card: #221e1a;
   --card-foreground: #f4ede2;
-  --paper-warm: #2a2520;
-  --paper-linen: #38312a;
-  --border-subtle: #332d26;
 }
 
 body {
@@ -31,6 +24,8 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
   letter-spacing: -0.01em;
+  scrollbar-width: thin;
+  scrollbar-color: #d6cbbe transparent;
 }
 
 /* Custom scrollbars for refined archival aesthetic */
@@ -87,7 +82,16 @@ body {
   animation: pulse-ring 2.2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
 }
 
-/* Editorial Dropcap Utility */
+/* Timeline connector stacking fix */
+.timeline-connector::before {
+  z-index: 1;
+}
+.timeline-connector > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Editorial Dropcap Utility (Available for future use) */
 .dropcap::first-letter {
   font-family: 'Fraunces', Georgia, serif;
   float: left;

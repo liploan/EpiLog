@@ -13,14 +13,12 @@ import {
   BookOpen,
   Calendar,
   ExternalLink,
-  ChevronRight,
+  ChevronDown,
   Landmark,
   Utensils,
   Trees,
   Globe2,
-  Check,
   Edit3,
-  Navigation,
 } from 'lucide-react';
 
 interface StopCardProps {
@@ -81,6 +79,15 @@ export const StopCard: React.FC<StopCardProps> = ({
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notesInput, setNotesInput] = useState(stop.reflection.userNotes || '');
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
 
   const activePhoto: PhotoAsset = stop.photos[selectedPhotoIndex] || stop.photos[0];
   const catConfig = CATEGORY_CONFIG[stop.reflection.category] || CATEGORY_CONFIG.Cultural;
@@ -97,12 +104,16 @@ export const StopCard: React.FC<StopCardProps> = ({
     setIsEditingNotes(false);
   };
 
+  React.useEffect(() => {
+    setNotesInput(stop.reflection.userNotes || '');
+  }, [stop.id, stop.reflection.userNotes]);
+
   return (
     <div
       onClick={onSelect}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className={`group relative rounded-3xl bg-white dark:bg-[#1f1b17] border transition-all duration-300 cursor-pointer overflow-hidden ${
+      className={`group relative rounded-3xl bg-white dark:bg-sand-900 border transition-all duration-300 cursor-pointer overflow-hidden ${
         isActive
           ? 'border-atelier-terracotta shadow-editorial ring-2 ring-atelier-terracotta/20 translate-y-[-2px]'
           : isHovered
@@ -317,187 +328,227 @@ export const StopCard: React.FC<StopCardProps> = ({
 
         {/* Gastronomy & Identified Dishes Card */}
         {stop.detectedDishes && stop.detectedDishes.length > 0 && (
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 space-y-2.5 shadow-subtle">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
-                <Utensils className="w-3.5 h-3.5 text-atelier-ochre" />
-                <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
-                  Gastronomy &bull; Identified Dishes
-                </span>
-              </div>
-              <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
-                Menu Lookup &bull; ~1m
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {stop.detectedDishes.map((dish, idx) => (
-                <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-amber-200/60 dark:border-amber-900/40 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-serif font-bold text-sand-900 dark:text-amber-100">{dish.name}</span>
-                    {dish.cuisineOrOrigin && (
-                      <span className="text-[10px] text-amber-800 dark:text-amber-300 font-medium shrink-0">
-                        {dish.cuisineOrOrigin}
-                      </span>
-                    )}
+          <div>
+            <button onClick={(e) => { e.stopPropagation(); toggleSection('dishes'); }} className="flex items-center justify-between w-full text-left py-2 text-sm font-medium text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta">
+              <span>🍽️ Gastronomy ({stop.detectedDishes.length})</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections.has('dishes') ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.has('dishes') && (
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 space-y-2.5 shadow-subtle mt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
+                    <Utensils className="w-3.5 h-3.5 text-atelier-ochre" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
+                      Gastronomy &bull; Identified Dishes
+                    </span>
                   </div>
-                  {dish.description && (
-                    <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
-                      {dish.description}
-                    </p>
-                  )}
-                  {dish.ingredients && dish.ingredients.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-0.5">
-                      {dish.ingredients.map((ing, iIdx) => (
-                        <span key={iIdx} className="px-1.5 py-0.5 rounded text-[9.5px] bg-amber-100/70 dark:bg-sand-800 text-amber-900 dark:text-amber-200 font-medium">
-                          {ing}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {dish.pairingOrNotes && (
-                    <div className="text-[10px] text-sand-500 dark:text-sand-400 italic pt-0.5 font-serif">
-                      &bull; {dish.pairingOrNotes}
-                    </div>
-                  )}
+                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                    Menu Lookup &bull; ~1m
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="space-y-2">
+                  {stop.detectedDishes.map((dish, idx) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-amber-200/60 dark:border-amber-900/40 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-serif font-bold text-sand-900 dark:text-amber-100">{dish.name}</span>
+                        {dish.cuisineOrOrigin && (
+                          <span className="text-[10px] text-amber-800 dark:text-amber-300 font-medium shrink-0">
+                            {dish.cuisineOrOrigin}
+                          </span>
+                        )}
+                      </div>
+                      {dish.description && (
+                        <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
+                          {dish.description}
+                        </p>
+                      )}
+                      {dish.ingredients && dish.ingredients.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-0.5">
+                          {dish.ingredients.map((ing, iIdx) => (
+                            <span key={iIdx} className="px-1.5 py-0.5 rounded text-[9.5px] bg-amber-100/70 dark:bg-sand-800 text-amber-900 dark:text-amber-200 font-medium">
+                              {ing}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {dish.pairingOrNotes && (
+                        <div className="text-[10px] text-sand-500 dark:text-sand-400 italic pt-0.5 font-serif">
+                          &bull; {dish.pairingOrNotes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Fine Art, Museum Artifacts & Masterworks Card */}
         {stop.detectedArtworks && stop.detectedArtworks.length > 0 && (
-          <div className="p-3.5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 space-y-2.5 shadow-subtle">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-purple-900 dark:text-purple-300">
-                <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
-                  Fine Art &bull; Museum Catalog
-                </span>
-              </div>
-              <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-purple-200/60 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200">
-                Artifact &bull; ~1m
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {stop.detectedArtworks.map((art, idx) => (
-                <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-purple-200/50 dark:border-purple-900/40 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-serif font-bold text-sand-900 dark:text-purple-100">{art.title}</span>
-                    {art.creationYearOrPeriod && (
-                      <span className="text-[10px] text-purple-700 dark:text-purple-300/80 font-medium shrink-0">
-                        {art.creationYearOrPeriod}
-                      </span>
-                    )}
+          <div>
+            <button onClick={(e) => { e.stopPropagation(); toggleSection('artworks'); }} className="flex items-center justify-between w-full text-left py-2 text-sm font-medium text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta">
+              <span>🎨 Fine Art ({stop.detectedArtworks.length})</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections.has('artworks') ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.has('artworks') && (
+              <div className="p-3.5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 space-y-2.5 shadow-subtle mt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-purple-900 dark:text-purple-300">
+                    <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
+                      Fine Art &bull; Museum Catalog
+                    </span>
                   </div>
-                  {art.artistOrCreator && (
-                    <p className="text-[11px] font-medium text-purple-900 dark:text-purple-300">
-                      By {art.artistOrCreator} {art.mediumOrStyle ? `• ${art.mediumOrStyle}` : ''}
-                    </p>
-                  )}
-                  {art.description && (
-                    <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
-                      {art.description}
-                    </p>
-                  )}
-                  {art.significanceOrInsight && (
-                    <div className="text-[10.5px] text-purple-950 dark:text-purple-200/90 italic pt-0.5 border-t border-purple-100 dark:border-purple-900/50 font-serif">
-                      ✨ {art.significanceOrInsight}
-                    </div>
-                  )}
+                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-purple-200/60 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200">
+                    Artifact &bull; ~1m
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="space-y-2">
+                  {stop.detectedArtworks.map((art, idx) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-purple-200/50 dark:border-purple-900/40 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-serif font-bold text-sand-900 dark:text-purple-100">{art.title}</span>
+                        {art.creationYearOrPeriod && (
+                          <span className="text-[10px] text-purple-700 dark:text-purple-300/80 font-medium shrink-0">
+                            {art.creationYearOrPeriod}
+                          </span>
+                        )}
+                      </div>
+                      {art.artistOrCreator && (
+                        <p className="text-[11px] font-medium text-purple-900 dark:text-purple-300">
+                          By {art.artistOrCreator} {art.mediumOrStyle ? `• ${art.mediumOrStyle}` : ''}
+                        </p>
+                      )}
+                      {art.description && (
+                        <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
+                          {art.description}
+                        </p>
+                      )}
+                      {art.significanceOrInsight && (
+                        <div className="text-[10.5px] text-purple-950 dark:text-purple-200/90 italic pt-0.5 border-t border-purple-100 dark:border-purple-900/50 font-serif">
+                          ✨ {art.significanceOrInsight}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Architectural Features & Masonry Heritage Card */}
         {stop.detectedArchitecture && stop.detectedArchitecture.length > 0 && (
-          <div className="p-3.5 rounded-2xl bg-sand-100/80 dark:bg-sand-900/40 border border-sand-300/80 dark:border-sand-800/80 space-y-2.5 shadow-subtle">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-sand-900 dark:text-sand-200">
-                <Landmark className="w-3.5 h-3.5 text-atelier-terracotta" />
-                <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
-                  Architecture &bull; Structural Heritage
-                </span>
-              </div>
-              <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-sand-200 dark:bg-sand-800 text-sand-800 dark:text-sand-200">
-                Sub-Meter Locale
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {stop.detectedArchitecture.map((arch, idx) => (
-                <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-sand-200/70 dark:border-sand-800/60 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-serif font-bold text-sand-900 dark:text-sand-100">{arch.elementName}</span>
-                    {arch.eraOrStyle && (
-                      <span className="text-[10px] text-atelier-terracotta font-medium shrink-0">
-                        {arch.eraOrStyle}
-                      </span>
-                    )}
+          <div>
+            <button onClick={(e) => { e.stopPropagation(); toggleSection('architecture'); }} className="flex items-center justify-between w-full text-left py-2 text-sm font-medium text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta">
+              <span>🏛️ Architecture ({stop.detectedArchitecture.length})</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections.has('architecture') ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.has('architecture') && (
+              <div className="p-3.5 rounded-2xl bg-sand-100/80 dark:bg-sand-900/40 border border-sand-300/80 dark:border-sand-800/80 space-y-2.5 shadow-subtle mt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-sand-900 dark:text-sand-200">
+                    <Landmark className="w-3.5 h-3.5 text-atelier-terracotta" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider font-serif">
+                      Architecture &bull; Structural Heritage
+                    </span>
                   </div>
-                  {arch.architectOrSchool && (
-                    <p className="text-[11px] font-medium text-sand-700 dark:text-sand-300">
-                      Master / Architect: {arch.architectOrSchool}
-                    </p>
-                  )}
-                  {arch.description && (
-                    <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
-                      {arch.description}
-                    </p>
-                  )}
+                  <span className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full bg-sand-200 dark:bg-sand-800 text-sand-800 dark:text-sand-200">
+                    Sub-Meter Locale
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="space-y-2">
+                  {stop.detectedArchitecture.map((arch, idx) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-white/80 dark:bg-sand-900/80 border border-sand-200/70 dark:border-sand-800/60 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-serif font-bold text-sand-900 dark:text-sand-100">{arch.elementName}</span>
+                        {arch.eraOrStyle && (
+                          <span className="text-[10px] text-atelier-terracotta font-medium shrink-0">
+                            {arch.eraOrStyle}
+                          </span>
+                        )}
+                      </div>
+                      {arch.architectOrSchool && (
+                        <p className="text-[11px] font-medium text-sand-700 dark:text-sand-300">
+                          Master / Architect: {arch.architectOrSchool}
+                        </p>
+                      )}
+                      {arch.description && (
+                        <p className="text-[11px] text-sand-600 dark:text-sand-300 leading-snug">
+                          {arch.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Micro-Establishments Breakdown */}
         {stop.microEstablishments && stop.microEstablishments.length > 1 && (
-          <div className="p-2.5 rounded-2xl bg-sand-100/60 dark:bg-sand-900/30 border border-sand-200/80 dark:border-sand-800/80 space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] font-bold text-sand-500 uppercase tracking-wider">
-              <span>Micro-Establishments Visited (~1m accuracy)</span>
-              <span>{stop.microEstablishments.length} Locales</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {stop.microEstablishments.map((micro, mIdx) => (
-                <span
-                  key={mIdx}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sand-200/70 dark:bg-sand-800 text-sand-800 dark:text-sand-200 text-[10.5px] font-medium"
-                >
-                  <MapPin className="w-2.5 h-2.5 text-atelier-terracotta" />
-                  <span>{micro.name}</span>
-                  <span className="text-[9px] text-atelier-olive dark:text-emerald-400 font-semibold">±{micro.precisionMeters}m</span>
-                </span>
-              ))}
-            </div>
+          <div>
+            <button onClick={(e) => { e.stopPropagation(); toggleSection('micro'); }} className="flex items-center justify-between w-full text-left py-2 text-sm font-medium text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta">
+              <span>📍 Micro-Establishments ({stop.microEstablishments.length})</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections.has('micro') ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.has('micro') && (
+              <div className="p-2.5 rounded-2xl bg-sand-100/60 dark:bg-sand-900/30 border border-sand-200/80 dark:border-sand-800/80 space-y-1.5 mt-2">
+                <div className="flex items-center justify-between text-[10px] font-bold text-sand-500 uppercase tracking-wider">
+                  <span>Micro-Establishments Visited (~1m accuracy)</span>
+                  <span>{stop.microEstablishments.length} Locales</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {stop.microEstablishments.map((micro, mIdx) => (
+                    <span
+                      key={mIdx}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sand-200/70 dark:bg-sand-800 text-sand-800 dark:text-sand-200 text-[10.5px] font-medium"
+                    >
+                      <MapPin className="w-2.5 h-2.5 text-atelier-terracotta" />
+                      <span>{micro.name}</span>
+                      <span className="text-[9px] text-atelier-olive dark:text-emerald-400 font-semibold">±{micro.precisionMeters}m</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* World On This Day Banner (Wikimedia API) */}
         {stop.worldOnThisDay && (
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-sand-100/70 dark:bg-sand-900/40 text-xs text-sand-600 dark:text-sand-400 border border-sand-200/80 dark:border-sand-800/80">
-            <Calendar className="w-3.5 h-3.5 text-atelier-terracotta shrink-0 mt-0.5" />
-            <div className="flex-1 text-[11px] leading-snug">
-              <span className="font-semibold text-sand-900 dark:text-sand-100">
-                On This Day ({stop.worldOnThisDay.dateStr}):{' '}
-              </span>
-              <span>{stop.worldOnThisDay.headline}</span>
-            </div>
-            {stop.worldOnThisDay.sourceUrl && (
-              <a
-                href={stop.worldOnThisDay.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-sand-400 hover:text-atelier-terracotta shrink-0"
-                title="Read Wikipedia article"
-              >
-                <ExternalLink className="w-3 h-3" />
-              </a>
+          <div>
+            <button onClick={(e) => { e.stopPropagation(); toggleSection('world'); }} className="flex items-center justify-between w-full text-left py-2 text-sm font-medium text-sand-800 dark:text-sand-200 hover:text-atelier-terracotta">
+              <span>📅 World On This Day</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections.has('world') ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.has('world') && (
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-sand-100/70 dark:bg-sand-900/40 text-xs text-sand-600 dark:text-sand-400 border border-sand-200/80 dark:border-sand-800/80 mt-2">
+                <Calendar className="w-3.5 h-3.5 text-atelier-terracotta shrink-0 mt-0.5" />
+                <div className="flex-1 text-[11px] leading-snug">
+                  <span className="font-semibold text-sand-900 dark:text-sand-100">
+                    On This Day ({stop.worldOnThisDay.dateStr}):{' '}
+                  </span>
+                  <span>{stop.worldOnThisDay.headline}</span>
+                </div>
+                {stop.worldOnThisDay.sourceUrl && (
+                  <a
+                    href={stop.worldOnThisDay.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-sand-400 hover:text-atelier-terracotta shrink-0"
+                    title="Read Wikipedia article"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
             )}
           </div>
         )}

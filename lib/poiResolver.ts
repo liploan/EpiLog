@@ -6,7 +6,7 @@ export interface VenueCandidate {
   type: string; // restaurant, cafe, pub, museum, viewpoint, historic, etc.
   coords: GeoCoordinate;
   address?: string;
-  distanceFromLatMeters?: number;
+  distanceMeters?: number;
 }
 
 const poiCache = new Map<string, VenueCandidate[]>();
@@ -53,7 +53,6 @@ out center 40;
       body: query,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'EpiLog-Journal/1.0',
       },
       signal: AbortSignal.timeout(6000),
     });
@@ -78,6 +77,8 @@ out center 40;
         const address = [street, houseNum].filter(Boolean).join(' ') || undefined;
 
         const dLatMeters = Math.abs(elLat - lat) * 111132;
+        const dLngMeters = Math.abs(elLng - approxLng) * 111132 * Math.cos(lat * Math.PI / 180);
+        const distanceMeters = Math.sqrt(dLatMeters * dLatMeters + dLngMeters * dLngMeters);
 
         candidates.push({
           name,
@@ -87,12 +88,12 @@ out center 40;
             lng: Number(elLng.toFixed(6)),
           },
           address,
-          distanceFromLatMeters: Number(dLatMeters.toFixed(1)),
+          distanceMeters: Number(distanceMeters.toFixed(1)),
         });
       }
 
-      // Sort by closeness to target latitude
-      candidates.sort((a, b) => (a.distanceFromLatMeters || 0) - (b.distanceFromLatMeters || 0));
+      // Sort by closeness to target point
+      candidates.sort((a, b) => (a.distanceMeters || 0) - (b.distanceMeters || 0));
 
       poiCache.set(cacheKey, candidates);
       return candidates;
@@ -119,7 +120,7 @@ out center 40;
             lng: Number(f.geometry.coordinates[0].toFixed(6)),
           },
           address: [f.properties.street, f.properties.housenumber].filter(Boolean).join(' ') || undefined,
-          distanceFromLatMeters: Math.abs(f.geometry.coordinates[1] - lat) * 111132,
+          distanceMeters: Math.sqrt(Math.pow(Math.abs(f.geometry.coordinates[1] - lat) * 111132, 2) + Math.pow(Math.abs(f.geometry.coordinates[0] - approxLng) * 111132 * Math.cos(lat * Math.PI / 180), 2)),
         }));
 
       poiCache.set(cacheKey, candidates);

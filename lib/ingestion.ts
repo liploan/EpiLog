@@ -76,20 +76,7 @@ function resolveCoordinates(
     lng = rawDeg + min / 60 + sec / 3600;
     if (lngRef === 'W') lng = -lng;
   } else {
-    // Reconstruct regional longitude from precise latitude in Spain
-    if (lat >= 40.35 && lat <= 40.55) {
-      lng = -3.7038; // Madrid
-    } else if (lat >= 40.93 && lat <= 41.05) {
-      lng = -5.6642; // Salamanca (Plaza Mayor & Historic University)
-    } else if (lat >= 40.85 && lat < 40.93) {
-      lng = -4.1215; // Segovia (Roman Aqueduct & Alcázar)
-    } else if (lat >= 39.80 && lat <= 39.95) {
-      lng = -4.0245; // Toledo
-    } else if (lat >= 39.40 && lat <= 39.60) {
-      lng = -5.3258; // Guadalupe
-    } else {
-      lng = -3.7038;
-    }
+    return null;
   }
 
   return { lat: Number(lat.toFixed(6)), lng: Number(lng.toFixed(6)) };
@@ -152,7 +139,17 @@ export async function extractPhotoMetadata(
   // Determine GPS Coordinates
   let coords: { lat: number; lng: number; altitude?: number } | null = null;
 
-  if (fullExif?.GPSLatitude) {
+  if (gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
+    if (Math.abs(gpsData.latitude) <= 90 && Math.abs(gpsData.longitude) <= 180 && (gpsData.latitude !== 0 || gpsData.longitude !== 0)) {
+      coords = {
+        lat: Number(gpsData.latitude.toFixed(6)),
+        lng: Number(gpsData.longitude.toFixed(6)),
+        altitude: typeof gpsData.altitude === 'number' ? Number(gpsData.altitude.toFixed(1)) : undefined,
+      };
+    }
+  }
+
+  if (!coords && fullExif?.GPSLatitude) {
     const resolved = resolveCoordinates(
       fullExif.GPSLatitude,
       fullExif.GPSLatitudeRef,
@@ -164,16 +161,6 @@ export async function extractPhotoMetadata(
         lat: resolved.lat,
         lng: resolved.lng,
         altitude: typeof fullExif.GPSAltitude === 'number' ? Number(fullExif.GPSAltitude.toFixed(1)) : undefined,
-      };
-    }
-  }
-
-  if (!coords && gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
-    if (Math.abs(gpsData.latitude) <= 90 && Math.abs(gpsData.longitude) <= 180 && (gpsData.latitude !== 0 || gpsData.longitude !== 0)) {
-      coords = {
-        lat: Number(gpsData.latitude.toFixed(6)),
-        lng: Number(gpsData.longitude.toFixed(6)),
-        altitude: typeof gpsData.altitude === 'number' ? Number(gpsData.altitude.toFixed(1)) : undefined,
       };
     }
   }
@@ -233,3 +220,16 @@ export async function processBatchPhotos(
 
   return results;
 }
+
+/**
+ * Utility to clean up preview URLs generated during ingestion.
+ * Call this when navigating away or unmounting.
+ */
+export function revokePhotoUrls(photos: PhotoAsset[]): void {
+  for (const photo of photos) {
+    if (photo.previewUrl) {
+      URL.revokeObjectURL(photo.previewUrl);
+    }
+  }
+}
+

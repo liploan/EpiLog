@@ -85,7 +85,12 @@ export async function synthesizeSceneWithGemini(
 
   try {
     const genAI = new GoogleGenerativeAI(params.apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+      },
+    });
 
     const candidateNamesStr = candidates.length > 0
       ? `\nNearby Known Venues along this street corridor: [${candidates.map((c) => `"${c.name}" (${c.type})`).slice(0, 15).join(', ')}]`
@@ -169,14 +174,7 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
     const result = await model.generateContent(parts);
     const responseText = result.response.text().trim();
 
-    // Clean up potential markdown formatting
-    const jsonStr = responseText
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/, '')
-      .trim();
-
-    const parsed = JSON.parse(jsonStr);
+    const parsed = JSON.parse(responseText);
 
     let matchedVenue: VenueCandidate | null = null;
     if (parsed.detectedVenueName && candidates.length > 0) {
@@ -237,4 +235,23 @@ Return ONLY valid raw JSON with no backticks or markdown codeblocks.`;
   }
 }
 
-
+export async function downscaleImage(file: File, maxDim: number = 1024): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Get base64 without the data:image/jpeg;base64, prefix
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      resolve(dataUrl.split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}

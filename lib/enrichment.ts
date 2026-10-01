@@ -27,7 +27,7 @@ export async function reverseGeocode(
       if (feature) {
         const poiName = feature.name || feature.street || feature.district || feature.locality || feature.city || 'Travel Stop';
         const city = feature.city || feature.county || feature.state || 'Local Stop';
-        const country = feature.country || 'Spain';
+        const country = feature.country || 'Unknown';
         const neighborhood = feature.district || feature.locality || feature.suburb || undefined;
 
         const result = { poiName, neighborhood, city, country };
@@ -68,8 +68,10 @@ export async function reverseGeocode(
   }
 
   // Strategy 3: Coordinates fallback
+  const latDir = coords.lat >= 0 ? 'N' : 'S';
+  const lngDir = coords.lng >= 0 ? 'E' : 'W';
   const fallback = {
-    poiName: `Stop @ ${coords.lat.toFixed(3)}°N, ${coords.lng.toFixed(3)}°E`,
+    poiName: `Stop @ ${Math.abs(coords.lat).toFixed(3)}°${latDir}, ${Math.abs(coords.lng).toFixed(3)}°${lngDir}`,
     city: 'Exploring...',
     country: '',
   };
@@ -153,5 +155,16 @@ export async function enrichStop(stop: TravelStop): Promise<TravelStop> {
     exactVenueName: topVenue?.name,
     resolvedPrecisionMeters: topVenue ? 2.0 : undefined,
   };
+}
+
+export async function enrichStopsSequentially(stops: TravelStop[]): Promise<TravelStop[]> {
+  const enriched: TravelStop[] = [];
+  for (const stop of stops) {
+    const result = await enrichStop(stop);
+    enriched.push(result);
+    // Rate limit: wait 1.1s between requests to respect Nominatim/Photon/Overpass policies
+    await new Promise(resolve => setTimeout(resolve, 1100));
+  }
+  return enriched;
 }
 
